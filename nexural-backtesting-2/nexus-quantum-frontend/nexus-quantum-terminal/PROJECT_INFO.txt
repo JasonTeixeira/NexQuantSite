@@ -1,0 +1,30 @@
+====================================
+NEXUS QUANTUM TERMINAL - PROJECT INFO
+====================================
+
+Transfer Date: Fri Aug 22 09:23:09 EDT 2025
+Source Path: /Users/Sage/Downloads/quant-terminal (6)
+Node Version Required: 18+
+Package Manager: npm
+
+QUICK START:
+1. cd /Users/Sage/Desktop/nexus-quantum-terminal
+2. npm install
+3. cp ENV_TEMPLATE .env.local
+4. Edit .env.local with your backend URL
+5. npm run dev
+
+IMPORTANT FILES:
+- BACKEND_INTEGRATION_SPECS.md - Complete backend API specifications
+- PROJECT_TRANSFER_GUIDE.md - Setup instructions
+- WORLD_CLASS_AUDIT_REPORT.md - Current state analysis
+- ENV_TEMPLATE - Environment variables template
+
+BACKEND REQUIREMENTS:
+- PostgreSQL database
+- Redis cache
+- WebSocket server
+- AI processing endpoints
+- Authentication system
+
+See BACKEND_INTEGRATION_SPECS.md for complete details.

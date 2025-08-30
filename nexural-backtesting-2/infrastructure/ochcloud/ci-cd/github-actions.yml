@@ -1,0 +1,564 @@
+# GitHub Actions CI/CD Pipeline for OCHcloud Deployment
+# Comprehensive testing, building, and deployment automation
+
+name: Nexural OCHcloud CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'nexus-quantum-frontend/**'
+      - 'infrastructure/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nexus-quantum-frontend/**'
+      - 'infrastructure/**'
+
+env:
+  NODE_VERSION: '18'
+  DOCKER_REGISTRY: 'registry.ochcloud.com'
+  PROJECT_NAME: 'nexural'
+
+jobs:
+  # Static Analysis and Security Scanning
+  security-scan:
+    name: 🔒 Security & Quality Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'nexus-quantum-frontend/nexus-quantum-terminal/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm ci
+
+      - name: ESLint Analysis
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run lint:report || true
+        continue-on-error: true
+
+      - name: TypeScript Type Check
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run type-check
+
+      - name: Security Audit
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: |
+          npm audit --audit-level=high
+          npx audit-ci --high
+
+      - name: Dependency Vulnerability Scan
+        uses: securecodewarrior/github-action-add-sarif@v1
+        with:
+          sarif-file: 'security-scan-results.sarif'
+        continue-on-error: true
+
+      - name: Code Quality Analysis with SonarQube
+        uses: sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+      - name: Docker Security Scan
+        run: |
+          # Install Docker security scanner
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          
+          # Scan Dockerfiles
+          trivy config infrastructure/ochcloud/
+          trivy fs --security-checks vuln,config infrastructure/ochcloud/
+
+  # Unit and Integration Tests
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: nexural_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: test
+          RABBITMQ_DEFAULT_PASS: test
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 30s
+          --health-timeout 30s
+          --health-retries 3
+        ports:
+          - 5672:5672
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'nexus-quantum-frontend/nexus-quantum-terminal/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm ci
+
+      - name: Setup test environment
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: |
+          cp .env.example .env.test
+          echo "DATABASE_URL=postgresql://test:test@localhost:5432/nexural_test" >> .env.test
+          echo "REDIS_URL=redis://localhost:6379/0" >> .env.test
+          echo "RABBITMQ_URL=amqp://test:test@localhost:5672/" >> .env.test
+
+      - name: Run database migrations
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run db:migrate:test
+
+      - name: Unit Tests
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run test:unit -- --coverage --watchAll=false
+        env:
+          CI: true
+
+      - name: Integration Tests
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run test:integration -- --watchAll=false
+        env:
+          CI: true
+
+      - name: API Tests
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run test:api -- --watchAll=false
+        env:
+          CI: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            nexus-quantum-frontend/nexus-quantum-terminal/coverage/
+            nexus-quantum-frontend/nexus-quantum-terminal/test-results/
+
+      - name: Codecov Upload
+        uses: codecov/codecov-action@v4
+        with:
+          directory: nexus-quantum-frontend/nexus-quantum-terminal/coverage/
+          flags: unittests
+          name: nexural-coverage
+
+  # End-to-End Tests
+  e2e-test:
+    name: 🎭 E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'nexus-quantum-frontend/nexus-quantum-terminal/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm ci
+
+      - name: Install Playwright
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npx playwright install --with-deps
+
+      - name: Start test environment
+        working-directory: infrastructure/ochcloud
+        run: |
+          cp .env.example .env.test
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 30  # Wait for services to be ready
+
+      - name: Wait for application
+        run: |
+          timeout=120
+          while [ $timeout -gt 0 ]; do
+            if curl -sf http://localhost:3000/api/health; then
+              echo "Application is ready"
+              break
+            fi
+            sleep 2
+            timeout=$((timeout-2))
+          done
+
+      - name: Run E2E tests
+        working-directory: nexus-quantum-frontend/nexus-quantum-terminal
+        run: npm run test:e2e
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Upload E2E artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-artifacts
+          path: |
+            nexus-quantum-frontend/nexus-quantum-terminal/test-results/
+            nexus-quantum-frontend/nexus-quantum-terminal/playwright-report/
+
+      - name: Cleanup test environment
+        if: always()
+        working-directory: infrastructure/ochcloud
+        run: docker-compose -f docker-compose.test.yml down -v
+
+  # Performance Tests
+  performance-test:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v0.47.0/k6-v0.47.0-linux-amd64.tar.gz -L | tar xvz --strip-components 1
+
+      - name: Start test environment
+        working-directory: infrastructure/ochcloud
+        run: |
+          cp .env.example .env.test
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 45
+
+      - name: Run performance tests
+        run: |
+          ./k6 run --out json=performance-results.json infrastructure/ochcloud/tests/performance/load-test.js
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: performance-results.json
+
+  # Build Docker Images
+  build:
+    name: 🏗️ Build Images
+    runs-on: ubuntu-latest
+    needs: [security-scan, test]
+    timeout-minutes: 30
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to OCHcloud Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.OCHCLOUD_REGISTRY_USERNAME }}
+          password: ${{ secrets.OCHCLOUD_REGISTRY_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.PROJECT_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push main application
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: infrastructure/ochcloud/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-app
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build and push worker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: infrastructure/ochcloud/Dockerfile.worker
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-worker
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Sign images with Cosign
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Install Cosign
+          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
+          sudo mv cosign-linux-amd64 /usr/local/bin/cosign
+          sudo chmod +x /usr/local/bin/cosign
+          
+          # Sign images
+          cosign sign --yes ${{ steps.meta.outputs.tags }}-app@${{ steps.build.outputs.digest }}
+          cosign sign --yes ${{ steps.meta.outputs.tags }}-worker@${{ steps.build.outputs.digest }}
+
+  # Deploy to Staging
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, e2e-test]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure OCHcloud CLI
+        run: |
+          curl -sfL https://cli.ochcloud.com/install.sh | sh
+          ochcloud auth login --token ${{ secrets.OCHCLOUD_API_TOKEN }}
+          ochcloud config set-context staging
+
+      - name: Deploy to staging
+        working-directory: infrastructure/ochcloud
+        run: |
+          # Update image tags in deployment
+          sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}|g" k8s/staging/*.yaml
+          
+          # Apply Kubernetes manifests
+          kubectl apply -f k8s/staging/ --validate=false
+          
+          # Wait for rollout
+          kubectl rollout status deployment/nexural-app -n staging --timeout=600s
+          kubectl rollout status deployment/nexural-worker -n staging --timeout=600s
+
+      - name: Run smoke tests
+        run: |
+          # Wait for services to be ready
+          sleep 30
+          
+          # Run smoke tests against staging
+          curl -sf https://staging.nexural.ochcloud.com/api/health
+          curl -sf https://staging.nexural.ochcloud.com/api/metrics
+
+      - name: Notify Slack
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: 'deployments'
+          SLACK_MESSAGE: 'Staging deployment completed for commit ${{ github.sha }}'
+
+  # Deploy to Production
+  deploy-production:
+    name: 🎯 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, performance-test]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure OCHcloud CLI
+        run: |
+          curl -sfL https://cli.ochcloud.com/install.sh | sh
+          ochcloud auth login --token ${{ secrets.OCHCLOUD_API_TOKEN }}
+          ochcloud config set-context production
+
+      - name: Database migrations
+        run: |
+          # Run database migrations in production
+          kubectl exec -n production deployment/nexural-app -- npm run db:migrate:prod
+
+      - name: Blue-Green Deployment
+        working-directory: infrastructure/ochcloud
+        run: |
+          # Update image tags
+          sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}|g" k8s/production/*.yaml
+          
+          # Deploy to green environment
+          kubectl apply -f k8s/production/ --validate=false
+          
+          # Wait for green deployment
+          kubectl rollout status deployment/nexural-app-green -n production --timeout=900s
+          kubectl rollout status deployment/nexural-worker-green -n production --timeout=900s
+          
+          # Health check green environment
+          kubectl exec -n production deployment/nexural-app-green -- curl -sf http://localhost:3000/api/health
+          
+          # Switch traffic to green (blue-green switch)
+          kubectl patch service nexural-app-service -n production -p '{"spec":{"selector":{"version":"green"}}}'
+          
+          # Wait and verify
+          sleep 30
+          curl -sf https://nexural.ochcloud.com/api/health
+          
+          # Scale down blue environment
+          kubectl scale deployment nexural-app-blue -n production --replicas=0
+          kubectl scale deployment nexural-worker-blue -n production --replicas=0
+
+      - name: Update monitoring dashboards
+        run: |
+          # Update Grafana dashboards with new deployment info
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
+            -d '{"tags":["deployment"],"text":"Production deployment completed","time":"'$(date -u +%s%3N)'"}' \
+            https://monitor.nexural.ochcloud.com/grafana/api/annotations
+
+      - name: Create GitHub Release
+        if: success()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            🚀 Production Release v${{ github.run_number }}
+            
+            **Changes in this release:**
+            ${{ github.event.head_commit.message }}
+            
+            **Docker Images:**
+            - App: `${{ needs.build.outputs.image-tag }}-app`
+            - Worker: `${{ needs.build.outputs.image-tag }}-worker`
+            
+            **Deployed at:** $(date -u)
+            **Commit:** ${{ github.sha }}
+          draft: false
+          prerelease: false
+
+      - name: Notify success
+        if: success()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: 'deployments'
+          SLACK_COLOR: 'good'
+          SLACK_MESSAGE: '🎉 Production deployment successful! v${{ github.run_number }} is now live.'
+
+      - name: Notify failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: 'deployments'
+          SLACK_COLOR: 'danger'
+          SLACK_MESSAGE: '🚨 Production deployment failed! Please check the logs and rollback if necessary.'
+
+  # Rollback (manual trigger)
+  rollback:
+    name: ⏪ Rollback Production
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment: production
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure OCHcloud CLI
+        run: |
+          ochcloud auth login --token ${{ secrets.OCHCLOUD_API_TOKEN }}
+          ochcloud config set-context production
+
+      - name: Rollback deployment
+        run: |
+          # Switch traffic back to blue environment
+          kubectl patch service nexural-app-service -n production -p '{"spec":{"selector":{"version":"blue"}}}'
+          
+          # Scale up blue environment
+          kubectl scale deployment nexural-app-blue -n production --replicas=3
+          kubectl scale deployment nexural-worker-blue -n production --replicas=2
+          
+          # Wait for blue to be ready
+          kubectl rollout status deployment/nexural-app-blue -n production --timeout=300s
+          
+          # Verify rollback
+          curl -sf https://nexural.ochcloud.com/api/health
+
+      - name: Notify rollback
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: 'deployments'
+          SLACK_COLOR: 'warning'
+          SLACK_MESSAGE: '⏪ Production rollback completed. Previous version is now active.'

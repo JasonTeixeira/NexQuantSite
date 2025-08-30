@@ -1,0 +1,378 @@
+{
+  "summary": {
+    "total": 61,
+    "passed": 28,
+    "failed": 28,
+    "warnings": 5
+  },
+  "securityScore": 0,
+  "timestamp": "2025-08-29T02:57:09.595Z",
+  "results": [
+    {
+      "test": "Page Load /",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.015Z"
+    },
+    {
+      "test": "Page Load /about",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.027Z"
+    },
+    {
+      "test": "Page Load /jobs",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.038Z"
+    },
+    {
+      "test": "Page Load /investors",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.048Z"
+    },
+    {
+      "test": "Page Load /dashboard",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.059Z"
+    },
+    {
+      "test": "Page Load /login",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.070Z"
+    },
+    {
+      "test": "Page Load /register",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.082Z"
+    },
+    {
+      "test": "Page Load /pricing",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.092Z"
+    },
+    {
+      "test": "Page Load /blog",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.103Z"
+    },
+    {
+      "test": "Page Load /contact",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.113Z"
+    },
+    {
+      "test": "Page Load /backtesting",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.125Z"
+    },
+    {
+      "test": "Page Load /backtesting/learn",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.135Z"
+    },
+    {
+      "test": "Page Load /options-flow",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.145Z"
+    },
+    {
+      "test": "Page Load /indicators",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.155Z"
+    },
+    {
+      "test": "Page Load /training",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.164Z"
+    },
+    {
+      "test": "Page Load /glossary",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.174Z"
+    },
+    {
+      "test": "Page Load /legal",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.183Z"
+    },
+    {
+      "test": "Page Load /admin/dashboard",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.192Z"
+    },
+    {
+      "test": "Page Load /admin/careers",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.201Z"
+    },
+    {
+      "test": "Page Load /admin/users",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.211Z"
+    },
+    {
+      "test": "Page Load /admin/analytics",
+      "status": "FAIL",
+      "details": "Status: ERROR",
+      "timestamp": "2025-08-29T02:57:09.221Z"
+    },
+    {
+      "test": "XSS Test 1",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.230Z"
+    },
+    {
+      "test": "XSS Test 2",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.239Z"
+    },
+    {
+      "test": "XSS Test 3",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.248Z"
+    },
+    {
+      "test": "XSS Test 4",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.256Z"
+    },
+    {
+      "test": "XSS Test 5",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.265Z"
+    },
+    {
+      "test": "XSS Test 6",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.273Z"
+    },
+    {
+      "test": "XSS Test 7",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.282Z"
+    },
+    {
+      "test": "XSS Test 8",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.291Z"
+    },
+    {
+      "test": "XSS Test 9",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.299Z"
+    },
+    {
+      "test": "XSS Test 10",
+      "status": "PASS",
+      "details": "Payload properly sanitized",
+      "timestamp": "2025-08-29T02:57:09.308Z"
+    },
+    {
+      "test": "SQL Injection Test 1",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.317Z"
+    },
+    {
+      "test": "SQL Injection Test 2",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.325Z"
+    },
+    {
+      "test": "SQL Injection Test 3",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.334Z"
+    },
+    {
+      "test": "SQL Injection Test 4",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.342Z"
+    },
+    {
+      "test": "SQL Injection Test 5",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.351Z"
+    },
+    {
+      "test": "SQL Injection Test 6",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.359Z"
+    },
+    {
+      "test": "SQL Injection Test 7",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.367Z"
+    },
+    {
+      "test": "SQL Injection Test 8",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.375Z"
+    },
+    {
+      "test": "SQL Injection Test 9",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.383Z"
+    },
+    {
+      "test": "SQL Injection Test 10",
+      "status": "PASS",
+      "details": "No database errors exposed",
+      "timestamp": "2025-08-29T02:57:09.392Z"
+    },
+    {
+      "test": "Input Validation: Empty Email",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.400Z"
+    },
+    {
+      "test": "Input Validation: Invalid Email",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.409Z"
+    },
+    {
+      "test": "Input Validation: Long String (1000 chars)",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.417Z"
+    },
+    {
+      "test": "Input Validation: Special Characters",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.425Z"
+    },
+    {
+      "test": "Input Validation: Null Values",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.434Z"
+    },
+    {
+      "test": "Input Validation: Boolean in String Field",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.442Z"
+    },
+    {
+      "test": "Input Validation: Array in String Field",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.451Z"
+    },
+    {
+      "test": "Input Validation: Negative Numbers",
+      "status": "PASS",
+      "details": "Graceful handling",
+      "timestamp": "2025-08-29T02:57:09.459Z"
+    },
+    {
+      "test": "Error Handling: Non-existent Route",
+      "status": "WARN",
+      "details": "Unexpected response",
+      "timestamp": "2025-08-29T02:57:09.468Z"
+    },
+    {
+      "test": "Error Handling: Invalid API Endpoint",
+      "status": "WARN",
+      "details": "Unexpected response",
+      "timestamp": "2025-08-29T02:57:09.476Z"
+    },
+    {
+      "test": "Error Handling: Malformed JSON",
+      "status": "WARN",
+      "details": "Unexpected response",
+      "timestamp": "2025-08-29T02:57:09.484Z"
+    },
+    {
+      "test": "Error Handling: Missing Required Fields",
+      "status": "WARN",
+      "details": "Unexpected response",
+      "timestamp": "2025-08-29T02:57:09.493Z"
+    },
+    {
+      "test": "Error Handling: Very Large Payload",
+      "status": "WARN",
+      "details": "Unexpected response",
+      "timestamp": "2025-08-29T02:57:09.502Z"
+    },
+    {
+      "test": "Performance: Homepage Load Time",
+      "status": "FAIL",
+      "details": "NaNs (too slow), NaNKB",
+      "timestamp": "2025-08-29T02:57:09.510Z"
+    },
+    {
+      "test": "Performance: Dashboard Load Time",
+      "status": "FAIL",
+      "details": "NaNs (too slow), NaNKB",
+      "timestamp": "2025-08-29T02:57:09.519Z"
+    },
+    {
+      "test": "Performance: API Response Time",
+      "status": "FAIL",
+      "details": "NaNs (too slow), NaNKB",
+      "timestamp": "2025-08-29T02:57:09.527Z"
+    },
+    {
+      "test": "Performance: Large Page Load",
+      "status": "FAIL",
+      "details": "NaNs (too slow), NaNKB",
+      "timestamp": "2025-08-29T02:57:09.535Z"
+    },
+    {
+      "test": "Auth Security: Admin Access Without Auth",
+      "status": "FAIL",
+      "details": "Security vulnerability detected",
+      "timestamp": "2025-08-29T02:57:09.544Z"
+    },
+    {
+      "test": "Auth Security: API Endpoints Protection",
+      "status": "FAIL",
+      "details": "Security vulnerability detected",
+      "timestamp": "2025-08-29T02:57:09.553Z"
+    },
+    {
+      "test": "Auth Security: Password Brute Force Protection",
+      "status": "FAIL",
+      "details": "Security vulnerability detected",
+      "timestamp": "2025-08-29T02:57:09.595Z"
+    }
+  ]
+}

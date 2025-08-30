@@ -1,0 +1,78 @@
+# Local Development Worker Dockerfile
+# Optimized for development and background processing
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    openblas-dev
+
+# Install Python ML libraries for development
+RUN pip3 install --no-cache-dir \
+    numpy \
+    pandas \
+    scikit-learn
+
+# Copy package files
+COPY nexus-quantum-frontend/nexus-quantum-terminal/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY nexus-quantum-frontend/nexus-quantum-terminal/lib ./lib
+
+# Create worker entry point for development
+RUN cat > worker.js << 'EOF'
+console.log('🔥 Starting Nexural Development Worker...')
+
+// Mock worker for development - simpler than production
+const worker = {
+  async start() {
+    console.log('✅ Development worker started')
+    console.log('📊 Monitoring message queues...')
+    console.log('🤖 AI/ML engine ready for development')
+    console.log('💼 Portfolio processing active')
+    
+    // Keep worker alive
+    setInterval(() => {
+      console.log('💓 Worker heartbeat -', new Date().toISOString())
+    }, 30000)
+  }
+}
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('⏹️ Development worker shutting down...')
+  process.exit(0)
+})
+
+process.on('SIGINT', () => {
+  console.log('⏹️ Development worker shutting down...')
+  process.exit(0)
+})
+
+// Start worker
+worker.start().catch(console.error)
+EOF
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV WORKER_TYPE=development
+
+# Create required directories
+RUN mkdir -p logs models
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
+    CMD pgrep -f "node worker.js" || exit 1
+
+# Start worker
+CMD ["node", "worker.js"]

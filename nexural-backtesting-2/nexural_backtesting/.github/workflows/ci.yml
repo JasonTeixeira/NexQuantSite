@@ -1,0 +1,174 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build TS services
+        run: |
+          for d in nexus-99-quantum-backend/services/*; do
+            if [ -f "$d/package.json" ]; then
+              (cd "$d" && npm ci && npm run build)
+            fi
+          done
+      - name: Run gateway tests
+        run: |
+          cd nexus-99-quantum-backend/services/api-gateway
+          npm test --silent
+      - name: Run data-service tests
+        run: |
+          cd nexus-99-quantum-backend/services/data-service
+          npm test --silent
+      - name: ESLint + TypeScript checks
+        run: |
+          set -e
+          for d in nexus-99-quantum-backend/services/*; do
+            if [ -f "$d/package.json" ]; then
+              (cd "$d" && npx -y eslint . || true)
+              (cd "$d" && npx -y tsc -p tsconfig.json --noEmit)
+            fi
+          done
+      - name: Helm lint charts
+        run: |
+          set -e
+          for chart in nexus-99-quantum-backend/infrastructure/kubernetes/*; do
+            if [ -f "$chart/Chart.yaml" ]; then
+              helm lint "$chart" || true
+            fi
+          done
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build Python services
+        run: |
+          for d in nexus-99-quantum-backend/services/*; do
+            if [ -f "$d/Dockerfile" ] && grep -q "python" "$d/Dockerfile"; then
+              echo "Python service at $d"
+            fi
+          done
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio black flake8 mypy
+    
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+    
+    - name: Format check with black
+      run: |
+        black --check --diff .
+    
+    - name: Type check with mypy
+      run: |
+        mypy . --ignore-missing-imports
+    
+    - name: Run tests
+      run: |
+        pytest tests/ -v --cov=. --cov-report=xml --cov-report=html
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run security checks
+      run: |
+        bandit -r . -f json -o bandit-report.json
+        safety check
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: bandit-report.json
+
+  build:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./deployment/Dockerfile
+        push: true
+        tags: |
+          nexural/backtesting:latest
+          nexural/backtesting:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production..."
+        # Add your deployment commands here
+

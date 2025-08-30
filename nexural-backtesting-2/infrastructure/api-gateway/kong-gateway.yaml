@@ -1,0 +1,573 @@
+# Kong API Gateway Configuration - Phase 2 Advanced API Management
+# Enterprise-grade routing, authentication, rate limiting, and monitoring
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+  namespace: nexural-production
+data:
+  kong.yml: |
+    _format_version: "3.0"
+    _transform: true
+
+    services:
+    # Frontend Service
+    - name: nexural-frontend
+      url: http://nexural-frontend:3000
+      protocol: http
+      host: nexural-frontend
+      port: 3000
+      path: /
+      connect_timeout: 60000
+      write_timeout: 60000
+      read_timeout: 60000
+      retries: 5
+      tags:
+        - nexural
+        - frontend
+
+    # API Service  
+    - name: nexural-api
+      url: http://nexural-api:8000
+      protocol: http
+      host: nexural-api
+      port: 8000
+      path: /
+      connect_timeout: 60000
+      write_timeout: 60000
+      read_timeout: 60000
+      retries: 5
+      tags:
+        - nexural
+        - api
+
+    # WebSocket Service
+    - name: nexural-websocket
+      url: http://nexural-websocket:8001
+      protocol: http
+      host: nexural-websocket
+      port: 8001
+      path: /
+      connect_timeout: 60000
+      write_timeout: 60000
+      read_timeout: 60000
+      retries: 5
+      tags:
+        - nexural
+        - websocket
+
+    # AI Service
+    - name: nexural-ai
+      url: http://nexural-ai:8002
+      protocol: http
+      host: nexural-ai
+      port: 8002
+      path: /
+      connect_timeout: 120000  # AI requests can take longer
+      write_timeout: 120000
+      read_timeout: 120000
+      retries: 3
+      tags:
+        - nexural
+        - ai
+
+    # Market Data Service
+    - name: nexural-market-data
+      url: http://nexural-market-data:8003
+      protocol: http
+      host: nexural-market-data
+      port: 8003
+      path: /
+      connect_timeout: 30000
+      write_timeout: 30000
+      read_timeout: 30000
+      retries: 5
+      tags:
+        - nexural
+        - market-data
+
+    routes:
+    # Frontend Routes
+    - name: frontend-root
+      service: nexural-frontend
+      protocols: ["http", "https"]
+      hosts: ["nexural.com", "app.nexural.com"]
+      paths: ["/"]
+      strip_path: false
+      preserve_host: true
+      tags:
+        - frontend
+
+    # API Routes with versioning
+    - name: api-v1
+      service: nexural-api
+      protocols: ["http", "https"]
+      hosts: ["api.nexural.com", "nexural.com"]
+      paths: ["/api/v1"]
+      strip_path: true
+      preserve_host: true
+      tags:
+        - api
+        - v1
+
+    - name: api-v2
+      service: nexural-api
+      protocols: ["http", "https"]
+      hosts: ["api.nexural.com", "nexural.com"]
+      paths: ["/api/v2"]
+      strip_path: true
+      preserve_host: true
+      tags:
+        - api
+        - v2
+
+    # WebSocket Routes
+    - name: websocket-live
+      service: nexural-websocket
+      protocols: ["http", "https", "ws", "wss"]
+      hosts: ["ws.nexural.com", "nexural.com"]
+      paths: ["/ws", "/websocket"]
+      strip_path: true
+      preserve_host: true
+      tags:
+        - websocket
+
+    # AI Routes
+    - name: ai-analysis
+      service: nexural-ai
+      protocols: ["http", "https"]
+      hosts: ["ai.nexural.com", "nexural.com"]
+      paths: ["/ai"]
+      strip_path: true
+      preserve_host: true
+      tags:
+        - ai
+
+    # Market Data Routes
+    - name: market-data
+      service: nexural-market-data
+      protocols: ["http", "https"]
+      hosts: ["data.nexural.com", "nexural.com"]
+      paths: ["/data", "/market"]
+      strip_path: true
+      preserve_host: true
+      tags:
+        - market-data
+
+    consumers:
+    # API Key Consumer for External Integration
+    - username: external-api
+      custom_id: external-api-user
+      tags:
+        - external
+        - api-key
+
+    # JWT Consumer for Web Application
+    - username: web-app
+      custom_id: web-app-user
+      tags:
+        - internal
+        - jwt
+
+    # Mobile App Consumer
+    - username: mobile-app
+      custom_id: mobile-app-user
+      tags:
+        - mobile
+        - jwt
+
+    # Admin Consumer
+    - username: admin
+      custom_id: admin-user
+      tags:
+        - admin
+        - high-privilege
+
+    plugins:
+    # Global Plugins
+    - name: prometheus
+      config:
+        per_consumer: true
+        status_code_metrics: true
+        latency_metrics: true
+        bandwidth_metrics: true
+
+    - name: request-id
+      config:
+        header_name: X-Request-ID
+        echo_downstream: true
+
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        echo_downstream: true
+
+    # CORS Plugin (Global)
+    - name: cors
+      config:
+        origins:
+          - "https://nexural.com"
+          - "https://app.nexural.com"
+          - "https://www.nexural.com"
+          - "http://localhost:3000"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+          - OPTIONS
+        headers:
+          - Accept
+          - Accept-Version
+          - Content-Length
+          - Content-MD5
+          - Content-Type
+          - Date
+          - X-Auth-Token
+          - Authorization
+          - X-Request-ID
+          - X-Correlation-ID
+        exposed_headers:
+          - X-Auth-Token
+          - X-Request-ID
+          - X-Correlation-ID
+        credentials: true
+        max_age: 3600
+        preflight_continue: false
+
+    # Security Headers (Global)
+    - name: response-transformer
+      config:
+        add:
+          headers:
+            - "X-Frame-Options: DENY"
+            - "X-Content-Type-Options: nosniff"
+            - "X-XSS-Protection: 1; mode=block"
+            - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
+            - "Content-Security-Policy: default-src 'self'"
+            - "Referrer-Policy: strict-origin-when-cross-origin"
+
+    # Rate Limiting for API Routes
+    - name: rate-limiting-advanced
+      route: api-v1
+      config:
+        limit:
+          - 1000  # 1000 requests
+        window_size:
+          - 3600  # per hour
+        identifier: consumer
+        sync_rate: 10
+        strategy: redis
+        redis:
+          host: redis-cluster
+          port: 6379
+          timeout: 2000
+          password: ${REDIS_PASSWORD}
+          database: 1
+        hide_client_headers: false
+        fault_tolerant: true
+
+    # Different rate limits for different routes
+    - name: rate-limiting-advanced
+      route: ai-analysis
+      config:
+        limit:
+          - 100   # 100 AI requests
+        window_size:
+          - 3600  # per hour (AI is more expensive)
+        identifier: consumer
+        sync_rate: 10
+        strategy: redis
+        redis:
+          host: redis-cluster
+          port: 6379
+          timeout: 2000
+          password: ${REDIS_PASSWORD}
+          database: 1
+
+    # JWT Authentication for Web/Mobile
+    - name: jwt
+      route: api-v1
+      config:
+        uri_param_names:
+          - token
+        cookie_names:
+          - jwt
+        header_names:
+          - Authorization
+        claims_to_verify:
+          - exp
+          - iss
+        key_claim_name: iss
+        secret_is_base64: false
+        anonymous: false
+        run_on_preflight: false
+
+    # API Key Authentication for External APIs
+    - name: key-auth
+      route: market-data
+      config:
+        key_names:
+          - X-API-Key
+          - apikey
+        key_in_body: false
+        key_in_header: true
+        key_in_query: true
+        hide_credentials: true
+        anonymous: false
+        run_on_preflight: false
+
+    # Request/Response Logging
+    - name: file-log
+      config:
+        path: /var/log/kong/access.log
+        reopen: true
+
+    # Circuit Breaker for AI Service
+    - name: proxy-cache-advanced
+      route: ai-analysis
+      config:
+        response_code:
+          - 200
+        request_method:
+          - GET
+          - HEAD
+        content_type:
+          - application/json
+        cache_ttl: 300  # 5 minutes for AI responses
+        strategy: memory
+        memory:
+          dictionary_name: kong_db_cache
+
+    # Request Size Limiting
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 10  # 10 MB
+        size_unit: megabytes
+        require_content_length: false
+
+    # IP Restriction for Admin Routes
+    - name: ip-restriction
+      consumer: admin
+      config:
+        allow:
+          - "10.0.0.0/8"      # Internal network
+          - "172.16.0.0/12"   # Private network
+          - "192.168.0.0/16"  # Local network
+        deny: []
+
+    # Request Termination for Maintenance
+    - name: request-termination
+      route: maintenance
+      config:
+        status_code: 503
+        content_type: application/json
+        body: '{"message":"Service temporarily unavailable for maintenance","retry_after":1800}'
+      enabled: false  # Enable during maintenance
+
+    # OAuth2 for Third-party Integrations
+    - name: oauth2
+      route: api-v2
+      config:
+        scopes:
+          - read
+          - write
+          - admin
+        mandatory_scope: true
+        provision_key: provision123
+        token_expiration: 7200  # 2 hours
+        enable_authorization_code: true
+        enable_client_credentials: true
+        enable_implicit_grant: false
+        enable_password_grant: false
+        hide_credentials: true
+        accept_http_if_already_terminated: true
+
+    # Health Check for Services
+    - name: upstream-health-check
+      service: nexural-api
+      config:
+        active:
+          type: http
+          http_path: "/health"
+          healthy:
+            interval: 10
+            http_statuses: [200, 302]
+            successes: 2
+          unhealthy:
+            interval: 10
+            http_statuses: [429, 404, 500, 501, 502, 503, 504, 505]
+            timeouts: 3
+            http_failures: 5
+            tcp_failures: 3
+        passive:
+          type: http
+          healthy:
+            http_statuses: [200, 201, 202, 203, 204, 205, 206, 300, 301, 302, 303, 304, 305, 306, 307, 308]
+            successes: 5
+          unhealthy:
+            http_statuses: [429, 500, 503]
+            timeouts: 7
+            http_failures: 5
+            tcp_failures: 3
+
+---
+# Kong Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-gateway
+  namespace: nexural-production
+  labels:
+    app: kong-gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kong-gateway
+  template:
+    metadata:
+      labels:
+        app: kong-gateway
+    spec:
+      containers:
+      - name: kong
+        image: kong:3.4-alpine
+        env:
+        - name: KONG_DATABASE
+          value: "off"
+        - name: KONG_DECLARATIVE_CONFIG
+          value: "/kong/kong.yml"
+        - name: KONG_PROXY_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_PROXY_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_LISTEN
+          value: "0.0.0.0:8001"
+        - name: KONG_PROXY_LISTEN
+          value: "0.0.0.0:8000"
+        - name: KONG_ADMIN_GUI_URL
+          value: "http://kong-admin.nexural.com"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        ports:
+        - containerPort: 8000
+          name: proxy
+          protocol: TCP
+        - containerPort: 8001
+          name: admin
+          protocol: TCP
+        - containerPort: 8443
+          name: proxy-ssl
+          protocol: TCP
+        - containerPort: 8444
+          name: admin-ssl
+          protocol: TCP
+        volumeMounts:
+        - name: kong-config
+          mountPath: /kong
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+      volumes:
+      - name: kong-config
+        configMap:
+          name: kong-config
+      restartPolicy: Always
+
+---
+# Kong Admin Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-admin
+  namespace: nexural-production
+  labels:
+    app: kong-gateway
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: 8001
+    name: admin
+  selector:
+    app: kong-gateway
+
+---
+# Kong Proxy Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-proxy
+  namespace: nexural-production
+  labels:
+    app: kong-gateway
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8000
+    name: proxy
+  - port: 443
+    targetPort: 8443
+    name: proxy-ssl
+  selector:
+    app: kong-gateway
+
+---
+# Kong HPA
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kong-gateway-hpa
+  namespace: nexural-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kong-gateway
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

@@ -1,0 +1,134 @@
+# Production Environment Configuration
+environment: production
+debug: false
+
+# Logging
+logging:
+  level: WARNING
+  console_output: false
+  file_output: true
+  json_format: true
+  
+# Data Settings
+data:
+  use_mock_data: false
+  cache_enabled: true
+  validation_strict: true
+  paths:
+    databento: "./data/production/databento/"
+    ninjatrader: "./data/production/ninjatrader/"
+    cache: "./data/production/cache/"
+    results: "./data/production/results/"
+
+# Backtesting Settings
+backtest:
+  initial_capital: 1000000  # Production capital
+  position_limit: 10
+  commission_per_side: 2.25
+  slippage_model: "calibrated"
+
+# Execution Settings
+execution:
+  latency_ms: 3  # Optimized latency
+  fill_model: "realistic"
+  use_real_fills: true
+
+# Risk Management (Strict for production)
+risk:
+  max_position_pct: 0.05  # Conservative
+  max_daily_loss: 0.01    # 1% max daily loss
+  max_drawdown: 0.05      # 5% max drawdown
+  stop_loss_pct: 0.015    # Tight stop loss
+
+# Testing Parameters
+testing:
+  walk_forward:
+    window_months: 24  # Longer for production
+    step_months: 6
+  monte_carlo:
+    simulations: 2000  # More comprehensive
+    confidence_level: 0.99  # Higher confidence
+  stress_test:
+    scenarios:
+      - flash_crash
+      - volatility_spike
+      - liquidity_crisis
+      - correlation_breakdown
+      - interest_rate_shock
+      - currency_crisis
+
+# Performance Settings
+performance:
+  max_workers: 8
+  batch_size: 10000
+  enable_parallel: true
+  enable_numba: true
+
+# Monitoring (Comprehensive)
+monitoring:
+  metrics_collection: true
+  collection_interval: 10  # 10 seconds
+  retention_hours: 168     # 1 week
+  alerts_enabled: true
+  dashboard_enabled: true
+
+# AI Settings
+ai:
+  model: "claude-3-opus-20241022"  # Best model for production
+  max_tokens: 4000
+  temperature: 0.3  # More conservative
+  analyze_every_n_trades: 25  # More frequent analysis
+
+# Security (Maximum security)
+security:
+  encryption_enabled: true
+  audit_logging: true
+  session_timeout_minutes: 30
+  mfa_required: true
+  ip_whitelist_enabled: true
+
+# Database (Production)
+database:
+  host: "prod-db-cluster.internal"
+  port: 5432
+  name: "backtesting_production"
+  pool_size: 20
+  connection_timeout: 5
+  read_replicas: 3
+
+# External Services (Production timeouts)
+external_services:
+  databento:
+    timeout_seconds: 15
+    retry_attempts: 5
+    circuit_breaker_enabled: true
+  ninjatrader:
+    timeout_seconds: 10
+    retry_attempts: 3
+    circuit_breaker_enabled: true
+  quantconnect:
+    timeout_seconds: 30
+    retry_attempts: 5
+    circuit_breaker_enabled: true
+
+# Compliance
+compliance:
+  data_retention_days: 2555  # 7 years
+  audit_trail_enabled: true
+  regulatory_reporting: true
+  risk_reporting_enabled: true
+
+# Backup and Recovery
+backup:
+  enabled: true
+  frequency: "daily"
+  retention_days: 90
+  offsite_backup: true
+
+# Alerting Thresholds (Production)
+alerts:
+  cpu_threshold: 70
+  memory_threshold: 75
+  disk_threshold: 80
+  error_rate_threshold: 0.01  # 1%
+  latency_threshold_ms: 100

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Admin Session</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+        }
+        .button {
+            background: #00ff88;
+            color: #000;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #00cc6a;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Admin Session Manager</h1>
+    <p>Use this to clear your admin session and test the login flow properly.</p>
+    
+    <button class="button" onclick="clearSession()">Clear Admin Session</button>
+    <button class="button" onclick="checkSession()">Check Current Session</button>
+    <button class="button" onclick="testLogin()">Test Login Flow</button>
+    
+    <div id="status" class="status">Ready...</div>
+
+    <h2>📋 Login Credentials:</h2>
+    <ul>
+        <li><strong>Super Admin:</strong> admin@nexural.com / admin123</li>
+        <li><strong>Regular Admin:</strong> demo@nexural.com / demo123</li>
+    </ul>
+
+    <script>
+        function clearSession() {
+            // Clear all admin-related localStorage items
+            const keys = ['adminToken', 'adminData', 'adminUser', 'adminRefreshToken', 'adminCSRFToken'];
+            
+            let cleared = [];
+            keys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    cleared.push(key);
+                }
+            });
+            
+            // Clear all cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            const status = document.getElementById('status');
+            if (cleared.length > 0) {
+                status.innerHTML = `✅ Cleared: ${cleared.join(', ')}<br/>🍪 All cookies cleared<br/>🔄 <a href="/admin/dashboard" style="color: #00ff88;">Test Admin Dashboard</a> (should redirect to login)`;
+            } else {
+                status.innerHTML = `ℹ️ No admin session found<br/>🔄 <a href="/admin/dashboard" style="color: #00ff88;">Test Admin Dashboard</a>`;
+            }
+        }
+        
+        function checkSession() {
+            const keys = ['adminToken', 'adminData', 'adminUser', 'adminRefreshToken', 'adminCSRFToken'];
+            const found = [];
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    found.push(`${key}: ${value.substring(0, 50)}...`);
+                }
+            });
+            
+            const status = document.getElementById('status');
+            if (found.length > 0) {
+                status.innerHTML = `🔍 Current Session:<br/>${found.join('<br/>')}`;
+            } else {
+                status.innerHTML = `ℹ️ No admin session active`;
+            }
+        }
+        
+        async function testLogin() {
+            const status = document.getElementById('status');
+            status.innerHTML = '🧪 Testing login API...';
+            
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@nexural.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    status.innerHTML = `✅ Login API working!<br/>Token: ${data.token.substring(0, 50)}...<br/>User: ${data.user.name} (${data.user.role})`;
+                } else {
+                    status.innerHTML = `❌ Login failed: ${data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                status.innerHTML = `❌ Login API error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

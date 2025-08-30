@@ -1,0 +1,495 @@
+# PostgreSQL High Availability Cluster with Read Replicas
+# Phase 2: Database Clustering for 25k+ users scalability
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: nexural-production
+data:
+  postgresql.conf: |
+    # PostgreSQL Configuration for High Performance Clustering
+    
+    # Connection Settings
+    max_connections = 200
+    shared_buffers = 1GB
+    effective_cache_size = 3GB
+    work_mem = 16MB
+    maintenance_work_mem = 256MB
+    
+    # Write-Ahead Logging (WAL) for Replication
+    wal_level = replica
+    max_wal_senders = 10
+    max_replication_slots = 10
+    hot_standby = on
+    hot_standby_feedback = on
+    
+    # Performance Tuning
+    checkpoint_completion_target = 0.9
+    wal_buffers = 16MB
+    default_statistics_target = 100
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    
+    # Logging
+    log_destination = 'stderr'
+    logging_collector = on
+    log_directory = 'pg_log'
+    log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+    log_min_messages = warning
+    log_min_error_statement = error
+    log_connections = on
+    log_disconnections = on
+    log_lock_waits = on
+    log_statement = 'ddl'
+    log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+    
+    # Memory Settings
+    shared_preload_libraries = 'pg_stat_statements'
+    
+  pg_hba.conf: |
+    # PostgreSQL Client Authentication Configuration
+    
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    
+    # Local connections
+    local   all             all                                     trust
+    
+    # IPv4 local connections:
+    host    all             all             127.0.0.1/32            md5
+    host    all             all             0.0.0.0/0               md5
+    
+    # IPv6 local connections:
+    host    all             all             ::1/128                 md5
+    
+    # Replication connections
+    host    replication     replicator      0.0.0.0/0               md5
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: nexural-production
+type: Opaque
+data:
+  # Base64 encoded passwords (change these in production)
+  postgres-password: bmV4dXJhbF9zdXBlcl9zZWN1cmVfcGFzc3dvcmQ=  # nexural_super_secure_password
+  replication-password: cmVwbGljYXRvcl9wYXNzd29yZA==  # replicator_password
+
+---
+# PostgreSQL Primary (Write) Instance
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-primary
+  namespace: nexural-production
+  labels:
+    app: postgres-primary
+    role: primary
+spec:
+  serviceName: postgres-primary-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-primary
+      role: primary
+  template:
+    metadata:
+      labels:
+        app: postgres-primary
+        role: primary
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POSTGRES_DB
+          value: nexural_production
+        - name: POSTGRES_USER
+          value: nexural_admin
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_REPLICATION_USER
+          value: replicator
+        - name: POSTGRES_REPLICATION_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: replication-password
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-config
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+        - name: postgres-config
+          mountPath: /etc/postgresql/pg_hba.conf
+          subPath: pg_hba.conf
+        command:
+        - postgres
+        - -c
+        - config_file=/etc/postgresql/postgresql.conf
+        - -c
+        - hba_file=/etc/postgresql/pg_hba.conf
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi" 
+            cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - nexural_admin
+            - -d
+            - nexural_production
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - nexural_admin
+            - -d
+            - nexural_production
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: postgres-config
+        configMap:
+          name: postgres-config
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Gi
+      storageClassName: gp2
+
+---
+# PostgreSQL Read Replica 1
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-replica-1
+  namespace: nexural-production
+  labels:
+    app: postgres-replica
+    role: replica
+    replica-id: "1"
+spec:
+  serviceName: postgres-replica-1-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-replica
+      role: replica
+      replica-id: "1"
+  template:
+    metadata:
+      labels:
+        app: postgres-replica
+        role: replica
+        replica-id: "1"
+    spec:
+      securityContext:
+        fsGroup: 999
+      initContainers:
+      - name: init-replica
+        image: postgres:15-alpine
+        env:
+        - name: PGUSER
+          value: replicator
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: replication-password
+        command:
+        - sh
+        - -c
+        - |
+          if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+            echo "Initializing replica from primary..."
+            pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U replicator -v -P -W
+            echo "primary_conninfo = 'host=postgres-primary port=5432 user=replicator password=${PGPASSWORD}'" >> /var/lib/postgresql/data/postgresql.auto.conf
+            echo "promote_trigger_file = '/tmp/promote_replica'" >> /var/lib/postgresql/data/postgresql.auto.conf
+            touch /var/lib/postgresql/data/standby.signal
+          fi
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-config
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+        - name: postgres-config
+          mountPath: /etc/postgresql/pg_hba.conf
+          subPath: pg_hba.conf
+        command:
+        - postgres
+        - -c
+        - config_file=/etc/postgresql/postgresql.conf
+        - -c
+        - hba_file=/etc/postgresql/pg_hba.conf
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - replicator
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - replicator
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: postgres-config
+        configMap:
+          name: postgres-config
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Gi
+      storageClassName: gp2
+
+---
+# PostgreSQL Read Replica 2
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-replica-2
+  namespace: nexural-production
+  labels:
+    app: postgres-replica
+    role: replica
+    replica-id: "2"
+spec:
+  serviceName: postgres-replica-2-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-replica
+      role: replica
+      replica-id: "2"
+  template:
+    metadata:
+      labels:
+        app: postgres-replica
+        role: replica
+        replica-id: "2"
+    spec:
+      securityContext:
+        fsGroup: 999
+      initContainers:
+      - name: init-replica
+        image: postgres:15-alpine
+        env:
+        - name: PGUSER
+          value: replicator
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: replication-password
+        command:
+        - sh
+        - -c
+        - |
+          if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+            echo "Initializing replica from primary..."
+            pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U replicator -v -P -W
+            echo "primary_conninfo = 'host=postgres-primary port=5432 user=replicator password=${PGPASSWORD}'" >> /var/lib/postgresql/data/postgresql.auto.conf
+            echo "promote_trigger_file = '/tmp/promote_replica'" >> /var/lib/postgresql/data/postgresql.auto.conf
+            touch /var/lib/postgresql/data/standby.signal
+          fi
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-config
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+        - name: postgres-config
+          mountPath: /etc/postgresql/pg_hba.conf
+          subPath: pg_hba.conf
+        command:
+        - postgres
+        - -c
+        - config_file=/etc/postgresql/postgresql.conf
+        - -c
+        - hba_file=/etc/postgresql/pg_hba.conf
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - replicator
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - replicator
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: postgres-config
+        configMap:
+          name: postgres-config
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Gi
+      storageClassName: gp2
+
+---
+# Primary Database Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-primary
+  namespace: nexural-production
+  labels:
+    app: postgres-primary
+    role: primary
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: postgres-primary
+    role: primary
+
+---
+# Read Replica Load Balancer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-read-replica
+  namespace: nexural-production
+  labels:
+    app: postgres-replica
+    role: replica
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: postgres-replica
+    role: replica
+
+---
+# Headless Services for StatefulSets
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-primary-headless
+  namespace: nexural-production
+spec:
+  clusterIP: None
+  selector:
+    app: postgres-primary
+    role: primary
+  ports:
+  - port: 5432
+    targetPort: 5432
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-replica-1-headless
+  namespace: nexural-production
+spec:
+  clusterIP: None
+  selector:
+    app: postgres-replica
+    role: replica
+    replica-id: "1"
+  ports:
+  - port: 5432
+    targetPort: 5432
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-replica-2-headless
+  namespace: nexural-production
+spec:
+  clusterIP: None
+  selector:
+    app: postgres-replica
+    role: replica
+    replica-id: "2"
+  ports:
+  - port: 5432
+    targetPort: 5432

@@ -1,0 +1,46 @@
+# Trading Symbols Configuration
+
+futures:
+  ES:
+    name: "E-mini S&P 500"
+    multiplier: 50
+    tick_size: 0.25
+    margin: 12000
+    hours: "09:30-16:00"
+    
+  NQ:
+    name: "E-mini NASDAQ-100"
+    multiplier: 20
+    tick_size: 0.25
+    margin: 15000
+    hours: "09:30-16:00"
+    
+  RTY:
+    name: "E-mini Russell 2000"
+    multiplier: 50
+    tick_size: 0.10
+    margin: 8000
+    hours: "09:30-16:00"
+    
+  YM:
+    name: "E-mini Dow Jones"
+    multiplier: 5
+    tick_size: 1.0
+    margin: 10000
+    hours: "09:30-16:00"
+
+equities:
+  SPY:
+    name: "SPDR S&P 500 ETF"
+    multiplier: 1
+    tick_size: 0.01
+    margin: 0.5
+    hours: "09:30-16:00"
+
+options:
+  SPY_OPTIONS:
+    name: "SPY Options"
+    multiplier: 100
+    tick_size: 0.01
+    margin: 0.5
+    hours: "09:30-16:00" 

@@ -1,0 +1,181 @@
+{
+  "summary": {
+    "total_tests_run": 48,
+    "total_tests_passed": 27,
+    "overall_pass_rate": 0.5625,
+    "total_execution_time": 4.834982,
+    "test_categories": 10,
+    "timestamp": "2025-08-23T13:40:33.273741"
+  },
+  "category_results": {
+    "core_functionality": {
+      "passed": false,
+      "tests_run": 10,
+      "failures": 10,
+      "pass_rate": 0.0
+    },
+    "performance": {
+      "passed": true,
+      "tests_run": 10,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "stress_testing": {
+      "passed": true,
+      "tests_run": 3,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "chaos_testing": {
+      "passed": true,
+      "tests_run": 3,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "security": {
+      "passed": true,
+      "tests_run": 2,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "data_integrity": {
+      "passed": false,
+      "tests_run": 10,
+      "failures": 10,
+      "pass_rate": 0.0
+    },
+    "edge_cases": {
+      "passed": true,
+      "tests_run": 4,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "concurrency": {
+      "passed": true,
+      "tests_run": 2,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "memory_management": {
+      "passed": true,
+      "tests_run": 2,
+      "failures": 0,
+      "pass_rate": 1.0
+    },
+    "error_handling": {
+      "passed": false,
+      "tests_run": 2,
+      "failures": 1,
+      "pass_rate": 0.5
+    }
+  },
+  "performance_metrics": {
+    "success_rate": 0.0,
+    "avg_processing_speed": 823319.4521437613,
+    "avg_memory_per_row": 0.39063268359375003,
+    "max_rows_tested": 100000.0,
+    "scenarios_passed": 3.0,
+    "chaos_handled": 3.0,
+    "security_checks_passed": 2.0,
+    "integrity_rate": 0.0,
+    "edge_cases_handled": 4.0,
+    "concurrent_tests_passed": 2.0,
+    "memory_tests_passed": 2.0,
+    "memory_increase": -21.12109375,
+    "error_handling_rate": 0.5
+  },
+  "detailed_results": [
+    {
+      "test_name": "Core Backtesting Functionality",
+      "category": "core_functionality",
+      "passed": false,
+      "iterations": 10,
+      "failures": 10,
+      "pass_rate": 0.0,
+      "execution_time": 0.338738
+    },
+    {
+      "test_name": "Performance Testing",
+      "category": "performance",
+      "passed": "True",
+      "iterations": 10,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 1.046988
+    },
+    {
+      "test_name": "Stress Testing",
+      "category": "stress_testing",
+      "passed": true,
+      "iterations": 3,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 2.65513
+    },
+    {
+      "test_name": "Chaos Testing",
+      "category": "chaos_testing",
+      "passed": true,
+      "iterations": 3,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 2.816711
+    },
+    {
+      "test_name": "Security Testing",
+      "category": "security",
+      "passed": true,
+      "iterations": 2,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 2.901842
+    },
+    {
+      "test_name": "Data Integrity",
+      "category": "data_integrity",
+      "passed": false,
+      "iterations": 10,
+      "failures": 10,
+      "pass_rate": 0.0,
+      "execution_time": 3.395787
+    },
+    {
+      "test_name": "Edge Cases",
+      "category": "edge_cases",
+      "passed": true,
+      "iterations": 4,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 3.423322
+    },
+    {
+      "test_name": "Concurrency Testing",
+      "category": "concurrency",
+      "passed": true,
+      "iterations": 2,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 3.583482
+    },
+    {
+      "test_name": "Memory Management",
+      "category": "memory_management",
+      "passed": true,
+      "iterations": 2,
+      "failures": 0,
+      "pass_rate": 1.0,
+      "execution_time": 4.800125
+    },
+    {
+      "test_name": "Error Handling",
+      "category": "error_handling",
+      "passed": false,
+      "iterations": 2,
+      "failures": 1,
+      "pass_rate": 0.5,
+      "execution_time": 4.834474
+    }
+  ],
+  "grade": "C SIGNIFICANT ISSUES",
+  "certification": "NOT CERTIFIED - Critical failures"
+}

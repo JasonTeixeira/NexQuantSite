@@ -1,0 +1,112 @@
+# Local Development Preview - Port 3090
+# Streamlined version for testing and polishing
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexural-postgres-local
+    environment:
+      POSTGRES_DB: nexural_dev
+      POSTGRES_USER: nexural
+      POSTGRES_PASSWORD: dev123
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexural -d nexural_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: nexural-redis-local
+    ports:
+      - "6381:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # RabbitMQ Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: nexural-rabbitmq-local
+    environment:
+      RABBITMQ_DEFAULT_USER: nexural
+      RABBITMQ_DEFAULT_PASS: dev123
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Main Application
+  nexural-app:
+    build:
+      context: ../../
+      dockerfile: infrastructure/ochcloud/Dockerfile.local
+    container_name: nexural-app-local
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://nexural:dev123@postgres:5432/nexural_dev
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://nexural:dev123@rabbitmq:5672/
+      JWT_SECRET: dev-jwt-secret-key-local-only
+      HSM_MASTER_PASSWORD: dev-hsm-master-password
+      HSM_MASTER_SALT: dev-hsm-salt
+      NEXT_PUBLIC_API_URL: http://localhost:3090
+    ports:
+      - "3090:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ../../nexus-quantum-frontend/nexus-quantum-terminal:/app
+      - /app/node_modules
+      - /app/.next
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Background Worker
+  nexural-worker:
+    build:
+      context: ../../
+      dockerfile: infrastructure/ochcloud/Dockerfile.worker.local
+    container_name: nexural-worker-local
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://nexural:dev123@postgres:5432/nexural_dev
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://nexural:dev123@rabbitmq:5672/
+      WORKER_CONCURRENCY: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_local_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

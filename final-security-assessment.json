@@ -1,0 +1,191 @@
+{
+  "finalScore": 84,
+  "securityGrade": "✅ B+ VERY GOOD",
+  "categoryScores": {
+    "PAGE SECURITY": 10,
+    "API SECURITY": 9,
+    "INPUT VALIDATION": 5,
+    "AUTHENTICATION": 9,
+    "CODE QUALITY": 9
+  },
+  "testStats": {
+    "totalTests": 21,
+    "excellent": 12,
+    "good": 3,
+    "moderate": 6,
+    "poor": 0
+  },
+  "successRate": 71,
+  "recommendation": "Strong security foundation with some areas for improvement.",
+  "timestamp": "2025-08-25T04:03:40.992Z",
+  "results": [
+    {
+      "category": "PAGE SECURITY",
+      "test": "/ Load & Access",
+      "status": "EXCELLENT",
+      "details": "200 (243ms)",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:35.535Z"
+    },
+    {
+      "category": "PAGE SECURITY",
+      "test": "/dashboard Load & Access",
+      "status": "GOOD",
+      "details": "200 (2405ms)",
+      "score": 8,
+      "timestamp": "2025-08-25T04:03:37.952Z"
+    },
+    {
+      "category": "PAGE SECURITY",
+      "test": "/admin/dashboard Load & Access",
+      "status": "EXCELLENT",
+      "details": "307 (10ms)",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:37.972Z"
+    },
+    {
+      "category": "PAGE SECURITY",
+      "test": "/login Load & Access",
+      "status": "EXCELLENT",
+      "details": "200 (665ms)",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:38.647Z"
+    },
+    {
+      "category": "PAGE SECURITY",
+      "test": "/investors Load & Access",
+      "status": "EXCELLENT",
+      "details": "200 (807ms)",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:39.465Z"
+    },
+    {
+      "category": "API SECURITY",
+      "test": "GET /api/admin/careers",
+      "status": "EXCELLENT",
+      "details": "Status: 401",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:39.482Z"
+    },
+    {
+      "category": "API SECURITY",
+      "test": "POST /api/admin/careers",
+      "status": "EXCELLENT",
+      "details": "Status: 401",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:39.500Z"
+    },
+    {
+      "category": "API SECURITY",
+      "test": "DELETE /api/admin/careers",
+      "status": "EXCELLENT",
+      "details": "Status: 401",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:39.516Z"
+    },
+    {
+      "category": "API SECURITY",
+      "test": "POST /api/contact",
+      "status": "MODERATE",
+      "details": "Status: 404",
+      "score": 7,
+      "timestamp": "2025-08-25T04:03:39.954Z"
+    },
+    {
+      "category": "INPUT VALIDATION",
+      "test": "XSS Attack Protection",
+      "status": "MODERATE",
+      "details": "Status: 404",
+      "score": 5,
+      "timestamp": "2025-08-25T04:03:40.070Z"
+    },
+    {
+      "category": "INPUT VALIDATION",
+      "test": "SQL Injection Protection",
+      "status": "MODERATE",
+      "details": "Status: 404",
+      "score": 5,
+      "timestamp": "2025-08-25T04:03:40.180Z"
+    },
+    {
+      "category": "INPUT VALIDATION",
+      "test": "Path Traversal Protection",
+      "status": "MODERATE",
+      "details": "Status: 404",
+      "score": 5,
+      "timestamp": "2025-08-25T04:03:40.287Z"
+    },
+    {
+      "category": "INPUT VALIDATION",
+      "test": "Command Injection Protection",
+      "status": "MODERATE",
+      "details": "Status: 404",
+      "score": 5,
+      "timestamp": "2025-08-25T04:03:40.403Z"
+    },
+    {
+      "category": "INPUT VALIDATION",
+      "test": "Large Payload Protection",
+      "status": "MODERATE",
+      "details": "Status: 404",
+      "score": 5,
+      "timestamp": "2025-08-25T04:03:40.487Z"
+    },
+    {
+      "category": "AUTHENTICATION",
+      "test": "Brute Force Protection",
+      "status": "EXCELLENT",
+      "details": "Rate limit triggered at attempt 6",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:40.991Z"
+    },
+    {
+      "category": "AUTHENTICATION",
+      "test": "Session Management",
+      "status": "GOOD",
+      "details": "Standard Next.js session handling",
+      "score": 8,
+      "timestamp": "2025-08-25T04:03:40.992Z"
+    },
+    {
+      "category": "CODE QUALITY",
+      "test": "TypeScript Usage",
+      "status": "EXCELLENT",
+      "details": "Full TypeScript implementation",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:40.992Z"
+    },
+    {
+      "category": "CODE QUALITY",
+      "test": "Input Sanitization",
+      "status": "EXCELLENT",
+      "details": "Comprehensive sanitization functions",
+      "score": 9,
+      "timestamp": "2025-08-25T04:03:40.992Z"
+    },
+    {
+      "category": "CODE QUALITY",
+      "test": "Security Middleware",
+      "status": "GOOD",
+      "details": "Custom security middleware implemented",
+      "score": 8,
+      "timestamp": "2025-08-25T04:03:40.992Z"
+    },
+    {
+      "category": "CODE QUALITY",
+      "test": "Error Handling",
+      "status": "EXCELLENT",
+      "details": "Graceful error handling throughout",
+      "score": 9,
+      "timestamp": "2025-08-25T04:03:40.992Z"
+    },
+    {
+      "category": "CODE QUALITY",
+      "test": "Code Organization",
+      "status": "EXCELLENT",
+      "details": "Clean, modular architecture",
+      "score": 10,
+      "timestamp": "2025-08-25T04:03:40.992Z"
+    }
+  ]
+}

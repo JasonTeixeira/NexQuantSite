@@ -1,0 +1,95 @@
+{
+  "timestamp": "2025-08-23T19:33:27.452Z",
+  "summary": {
+    "criticalVulns": 2,
+    "highVulns": 0,
+    "mediumVulns": 1,
+    "lowVulns": 0,
+    "totalVulns": 3,
+    "warnings": 1,
+    "passed": 11,
+    "securityScore": 73.33333333333333,
+    "grade": "F"
+  },
+  "vulnerabilities": [
+    {
+      "category": "Authentication Bypass",
+      "severity": "CRITICAL",
+      "endpoint": "/admin/dashboard",
+      "description": "Protected endpoint accessible without authentication",
+      "recommendation": "Implement proper authentication guards"
+    },
+    {
+      "category": "Authentication Bypass",
+      "severity": "CRITICAL",
+      "endpoint": "/admin/users",
+      "description": "Protected endpoint accessible without authentication",
+      "recommendation": "Implement proper authentication guards"
+    },
+    {
+      "category": "Rate Limiting",
+      "severity": "MEDIUM",
+      "endpoint": "/api/auth/login",
+      "description": "No rate limiting detected on authentication endpoint",
+      "recommendation": "Implement rate limiting to prevent brute force attacks"
+    }
+  ],
+  "warnings": [
+    {
+      "category": "HTTPS Configuration",
+      "description": "Development server using HTTP (acceptable for development)"
+    }
+  ],
+  "passed": [
+    {
+      "category": "Security Headers",
+      "header": "x-frame-options",
+      "description": "x-frame-options properly configured"
+    },
+    {
+      "category": "Security Headers",
+      "header": "x-content-type-options",
+      "description": "x-content-type-options properly configured"
+    },
+    {
+      "category": "Security Headers",
+      "header": "x-xss-protection",
+      "description": "x-xss-protection properly configured"
+    },
+    {
+      "category": "Security Headers",
+      "header": "strict-transport-security",
+      "description": "strict-transport-security properly configured"
+    },
+    {
+      "category": "Security Headers",
+      "header": "content-security-policy",
+      "description": "content-security-policy properly configured"
+    },
+    {
+      "category": "Security Headers",
+      "header": "referrer-policy",
+      "description": "referrer-policy properly configured"
+    },
+    {
+      "category": "File Upload Security",
+      "description": "File upload endpoints properly secured"
+    },
+    {
+      "category": "API Security",
+      "description": "API endpoints have appropriate security measures"
+    },
+    {
+      "category": "Input Validation",
+      "description": "Input validation properly implemented"
+    },
+    {
+      "category": "Cookie Security",
+      "description": "Cookie security attributes properly configured"
+    },
+    {
+      "category": "Content Security Policy",
+      "description": "CSP header properly implemented"
+    }
+  ]
+}

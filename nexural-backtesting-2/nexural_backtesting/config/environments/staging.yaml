@@ -1,0 +1,102 @@
+# Staging Environment Configuration
+environment: staging
+debug: false
+
+# Logging
+logging:
+  level: INFO
+  console_output: false
+  file_output: true
+  json_format: true
+
+# Data Settings
+data:
+  use_mock_data: false
+  cache_enabled: true
+  validation_strict: true
+  paths:
+    databento: "./data/staging/databento/"
+    ninjatrader: "./data/staging/ninjatrader/"
+    cache: "./data/staging/cache/"
+    results: "./data/staging/results/"
+
+# Backtesting Settings
+backtest:
+  initial_capital: 100000
+  position_limit: 5
+  commission_per_side: 2.25
+  slippage_model: "calibrated"
+
+# Execution Settings
+execution:
+  latency_ms: 5
+  fill_model: "realistic"
+  use_real_fills: true
+
+# Risk Management
+risk:
+  max_position_pct: 0.10
+  max_daily_loss: 0.02
+  max_drawdown: 0.10
+  stop_loss_pct: 0.02
+
+# Testing Parameters
+testing:
+  walk_forward:
+    window_months: 12
+    step_months: 3
+  monte_carlo:
+    simulations: 500
+    confidence_level: 0.95
+  stress_test:
+    scenarios:
+      - flash_crash
+      - volatility_spike
+      - liquidity_crisis
+      - correlation_breakdown
+
+# Performance Settings
+performance:
+  max_workers: 4
+  batch_size: 5000
+  enable_parallel: true
+  enable_numba: true
+
+# Monitoring
+monitoring:
+  metrics_collection: true
+  collection_interval: 30  # 30 seconds
+  retention_hours: 24
+  alerts_enabled: true
+
+# AI Settings
+ai:
+  model: "claude-3-sonnet-20241022"
+  max_tokens: 2000
+  temperature: 0.7
+  analyze_every_n_trades: 100
+
+# Security (Staging - Production-like)
+security:
+  encryption_enabled: true
+  audit_logging: true
+  session_timeout_minutes: 60
+
+# Database (Staging)
+database:
+  host: "staging-db.internal"
+  port: 5432
+  name: "backtesting_staging"
+  pool_size: 10
+  
+# External Services
+external_services:
+  databento:
+    timeout_seconds: 30
+    retry_attempts: 3
+  ninjatrader:
+    timeout_seconds: 15
+    retry_attempts: 2
+  quantconnect:
+    timeout_seconds: 45
+    retry_attempts: 3

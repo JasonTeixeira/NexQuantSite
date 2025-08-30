@@ -1,0 +1,201 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nexural-backtesting"
+version = "1.0.0"
+description = "Institutional-grade quantitative backtesting system"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Nexural Team", email = "contact@nexural.com"},
+]
+maintainers = [
+    {name = "Nexural Team", email = "contact@nexural.com"},
+]
+keywords = [
+    "backtesting",
+    "quantitative-finance", 
+    "trading",
+    "algorithmic-trading",
+    "financial-modeling",
+    "high-frequency-trading",
+    "microstructure",
+    "portfolio-optimization"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9", 
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pandas>=2.0.0",
+    "polars>=0.20.0", 
+    "numpy>=1.24.0",
+    "optuna>=3.5.0",
+    "plotly>=5.15.0",
+    "scipy>=1.10.0",
+    "loguru>=0.7.0",
+    "psutil>=5.9.0",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-xdist>=3.3.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0", 
+    "mypy>=1.5.0",
+    "pre-commit>=3.0.0",
+]
+ui = [
+    "streamlit>=1.28.0",
+    "dash>=2.14.0",
+]
+ml = [
+    "scikit-learn>=1.3.0",
+    "xgboost>=1.7.0",
+    "lightgbm>=4.0.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.23.0",
+]
+brokers = [
+    "alpaca-trade-api>=3.0.0",
+    "ib-insync>=0.9.86", 
+    "python-binance>=1.0.17",
+]
+all = [
+    "nexural-backtesting[dev,ui,ml,docs,brokers]"
+]
+
+[project.urls]
+Homepage = "https://github.com/nexural/backtesting"
+Repository = "https://github.com/nexural/backtesting.git"
+Documentation = "https://nexural-backtesting.readthedocs.io"
+"Bug Tracker" = "https://github.com/nexural/backtesting/issues"
+Changelog = "https://github.com/nexural/backtesting/blob/main/CHANGELOG.md"
+
+[project.scripts]
+nexural-backtest = "nexural_backtesting.cli:main"
+nexural-dashboard = "nexural_backtesting.dashboard:launch"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["nexural_backtesting*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config", 
+    "--cov=nexural_backtesting",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=90",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests", 
+    "performance: marks tests as performance benchmarks",
+    "security: marks tests as security tests",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "polars.*",
+    "plotly.*", 
+    "streamlit.*",
+    "optuna.*",
+]
+ignore_missing_imports = true
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503", "E501"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs/source/conf.py",
+    "old",
+    "build",
+    "dist",
+]
+max-complexity = 10
+
+[tool.coverage.run]
+source = ["src/nexural_backtesting"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

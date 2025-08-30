@@ -1,0 +1,748 @@
+{
+  "summary": {
+    "totalTests": 64,
+    "passed": 55,
+    "failed": 9,
+    "warnings": 0,
+    "critical_failures": 9,
+    "score": 0
+  },
+  "pageTests": [
+    {
+      "page": "Homepage",
+      "url": "/",
+      "status": 200,
+      "loadTime": 323,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Login",
+      "url": "/login",
+      "status": 200,
+      "loadTime": 1415,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Register",
+      "url": "/register",
+      "status": 200,
+      "loadTime": 628,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Contact",
+      "url": "/contact",
+      "status": 200,
+      "loadTime": 144,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Pricing",
+      "url": "/pricing",
+      "status": 200,
+      "loadTime": 586,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Main Dashboard",
+      "url": "/dashboard",
+      "status": 200,
+      "loadTime": 2675,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Portfolio Dashboard",
+      "url": "/dashboard/portfolio",
+      "status": 200,
+      "loadTime": 1353,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Trading Signals",
+      "url": "/dashboard/signals",
+      "status": 200,
+      "loadTime": 687,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Performance Analytics",
+      "url": "/dashboard/performance",
+      "status": 200,
+      "loadTime": 796,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Billing Dashboard",
+      "url": "/dashboard/billing",
+      "status": 200,
+      "loadTime": 874,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Referral Dashboard",
+      "url": "/dashboard/referrals",
+      "status": 500,
+      "loadTime": 848,
+      "passed": false,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Trading Marketplace",
+      "url": "/marketplace",
+      "status": 200,
+      "loadTime": 919,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Backtesting Engine",
+      "url": "/backtesting",
+      "status": 200,
+      "loadTime": 767,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Strategy Laboratory",
+      "url": "/strategy-lab",
+      "status": 200,
+      "loadTime": 1067,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Professional Signals",
+      "url": "/signals-pro",
+      "status": 200,
+      "loadTime": 1027,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Risk Calculator",
+      "url": "/risk-calculator",
+      "status": 200,
+      "loadTime": 1129,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Options Flow",
+      "url": "/options-flow",
+      "status": 200,
+      "loadTime": 1867,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Learning Center",
+      "url": "/learning",
+      "status": 200,
+      "loadTime": 201,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Community Hub",
+      "url": "/community",
+      "status": 200,
+      "loadTime": 1111,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Leaderboard",
+      "url": "/leaderboard",
+      "status": 200,
+      "loadTime": 1026,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Blog",
+      "url": "/blog",
+      "status": 200,
+      "loadTime": 1298,
+      "passed": true,
+      "critical": false,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Admin Dashboard",
+      "url": "/admin",
+      "status": 0,
+      "loadTime": 73,
+      "passed": false,
+      "critical": true,
+      "error": "fetch failed",
+      "issues": [
+        "Page failed to load: fetch failed"
+      ]
+    },
+    {
+      "page": "User Management",
+      "url": "/admin/users",
+      "status": 0,
+      "loadTime": 55,
+      "passed": false,
+      "critical": true,
+      "error": "fetch failed",
+      "issues": [
+        "Page failed to load: fetch failed"
+      ]
+    },
+    {
+      "page": "Admin Analytics",
+      "url": "/admin/analytics",
+      "status": 500,
+      "loadTime": 1818,
+      "passed": false,
+      "critical": true,
+      "issues": [
+        "Missing security headers: x-frame-options, x-content-type-options, x-xss-protection, strict-transport-security"
+      ]
+    },
+    {
+      "page": "Security Dashboard",
+      "url": "/admin/security-dashboard",
+      "status": 429,
+      "loadTime": 65,
+      "passed": false,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Billing Management",
+      "url": "/admin/billing-management",
+      "status": 429,
+      "loadTime": 25,
+      "passed": false,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Help Center",
+      "url": "/help",
+      "status": 200,
+      "loadTime": 2008,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Terms of Service",
+      "url": "/terms",
+      "status": 200,
+      "loadTime": 1175,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Privacy Policy",
+      "url": "/privacy",
+      "status": 200,
+      "loadTime": 1249,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Legal Center",
+      "url": "/legal",
+      "status": 200,
+      "loadTime": 1154,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "User Profile",
+      "url": "/profile",
+      "status": 200,
+      "loadTime": 1192,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "User Settings",
+      "url": "/settings",
+      "status": 200,
+      "loadTime": 1332,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Billing Page",
+      "url": "/billing",
+      "status": 200,
+      "loadTime": 8400,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow load time: 8400ms (max: 3000ms)",
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Referral Program",
+      "url": "/referrals",
+      "status": 200,
+      "loadTime": 2620,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "User Onboarding",
+      "url": "/onboarding",
+      "status": 200,
+      "loadTime": 1348,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "2FA Setup",
+      "url": "/2fa-setup",
+      "status": 200,
+      "loadTime": 1302,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Email Verification",
+      "url": "/verify-email",
+      "status": 200,
+      "loadTime": 1334,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    },
+    {
+      "page": "Password Reset",
+      "url": "/forgot-password",
+      "status": 200,
+      "loadTime": 1397,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Missing security headers: strict-transport-security"
+      ]
+    }
+  ],
+  "apiTests": [
+    {
+      "endpoint": "/api/auth/login",
+      "method": "POST",
+      "status": 429,
+      "responseTime": 7,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/auth/register",
+      "method": "POST",
+      "status": 429,
+      "responseTime": 6,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/auth/logout",
+      "method": "POST",
+      "status": 429,
+      "responseTime": 6,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/auth/forgot-password",
+      "method": "POST",
+      "status": 429,
+      "responseTime": 5,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/auth/verify-email",
+      "method": "POST",
+      "status": 429,
+      "responseTime": 5,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/user/profile",
+      "method": "GET",
+      "status": 401,
+      "responseTime": 4,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/user/settings",
+      "method": "GET",
+      "status": 401,
+      "responseTime": 3,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/trading/market",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1148,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1148ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/trading/signals",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1170,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1170ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/portfolio",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1227,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1227ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/marketplace/bots",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1659,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1659ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/marketplace/strategies",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1196,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1196ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/payments/create-checkout",
+      "method": "POST",
+      "status": 400,
+      "responseTime": 4,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/subscriptions",
+      "method": "GET",
+      "status": 400,
+      "responseTime": 1184,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1184ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/admin/users",
+      "method": "GET",
+      "status": 401,
+      "responseTime": 9,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/admin/analytics",
+      "method": "GET",
+      "status": 401,
+      "responseTime": 3,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/admin/health",
+      "method": "GET",
+      "status": 401,
+      "responseTime": 2,
+      "passed": true,
+      "critical": true,
+      "issues": []
+    },
+    {
+      "endpoint": "/api/contact",
+      "method": "POST",
+      "status": 200,
+      "responseTime": 3204,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 3204ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/newsletter/subscribe",
+      "method": "POST",
+      "status": 500,
+      "responseTime": 2751,
+      "passed": false,
+      "critical": true,
+      "issues": [
+        "Slow response: 2751ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1586,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1586ms (max: 500ms)"
+      ]
+    },
+    {
+      "endpoint": "/api/health-check",
+      "method": "GET",
+      "status": 200,
+      "responseTime": 1643,
+      "passed": true,
+      "critical": true,
+      "issues": [
+        "Slow response: 1643ms (max: 500ms)"
+      ]
+    }
+  ],
+  "securityTests": [
+    {
+      "name": "SQL Injection Test",
+      "passed": true,
+      "details": "No SQL injection vulnerabilities detected",
+      "executionTime": 17,
+      "critical": true
+    },
+    {
+      "name": "XSS Protection Test",
+      "passed": true,
+      "details": "XSS protection working correctly",
+      "executionTime": 49,
+      "critical": true
+    },
+    {
+      "name": "Rate Limiting Test",
+      "passed": true,
+      "details": "Rate limiting is active",
+      "executionTime": 100,
+      "critical": true
+    },
+    {
+      "name": "Authentication Security Test",
+      "passed": false,
+      "details": "1 protected routes accessible without auth",
+      "executionTime": 375,
+      "critical": true
+    },
+    {
+      "name": "CSRF Protection Test",
+      "passed": false,
+      "details": "CSRF protection may be missing",
+      "executionTime": 4,
+      "critical": true
+    }
+  ],
+  "performanceTests": [],
+  "issues": {
+    "critical": [
+      "Page Referral Dashboard: Missing security headers: strict-transport-security",
+      "Page Admin Dashboard: Page failed to load: fetch failed",
+      "Page User Management: Page failed to load: fetch failed",
+      "Page Admin Analytics: Missing security headers: x-frame-options, x-content-type-options, x-xss-protection, strict-transport-security",
+      "Page Security Dashboard: Missing security headers: strict-transport-security",
+      "Page Billing Management: Missing security headers: strict-transport-security",
+      "API /api/newsletter/subscribe: Failed",
+      "Security Authentication Security Test: 1 protected routes accessible without auth",
+      "Security CSRF Protection Test: CSRF protection may be missing"
+    ],
+    "high": [],
+    "medium": [],
+    "low": [
+      "Homepage: Missing security headers: strict-transport-security",
+      "Login: Missing security headers: strict-transport-security",
+      "Register: Missing security headers: strict-transport-security",
+      "Contact: Missing security headers: strict-transport-security",
+      "Pricing: Missing security headers: strict-transport-security",
+      "Main Dashboard: Missing security headers: strict-transport-security",
+      "Portfolio Dashboard: Missing security headers: strict-transport-security",
+      "Trading Signals: Missing security headers: strict-transport-security",
+      "Performance Analytics: Missing security headers: strict-transport-security",
+      "Billing Dashboard: Missing security headers: strict-transport-security",
+      "Referral Dashboard: Missing security headers: strict-transport-security",
+      "Trading Marketplace: Missing security headers: strict-transport-security",
+      "Backtesting Engine: Missing security headers: strict-transport-security",
+      "Strategy Laboratory: Missing security headers: strict-transport-security",
+      "Professional Signals: Missing security headers: strict-transport-security",
+      "Risk Calculator: Missing security headers: strict-transport-security",
+      "Options Flow: Missing security headers: strict-transport-security",
+      "Learning Center: Missing security headers: strict-transport-security",
+      "Community Hub: Missing security headers: strict-transport-security",
+      "Leaderboard: Missing security headers: strict-transport-security",
+      "Blog: Missing security headers: strict-transport-security",
+      "Admin Dashboard: Page failed to load: fetch failed",
+      "User Management: Page failed to load: fetch failed",
+      "Admin Analytics: Missing security headers: x-frame-options, x-content-type-options, x-xss-protection, strict-transport-security",
+      "Security Dashboard: Missing security headers: strict-transport-security",
+      "Billing Management: Missing security headers: strict-transport-security",
+      "Help Center: Missing security headers: strict-transport-security",
+      "Terms of Service: Missing security headers: strict-transport-security",
+      "Privacy Policy: Missing security headers: strict-transport-security",
+      "Legal Center: Missing security headers: strict-transport-security",
+      "User Profile: Missing security headers: strict-transport-security",
+      "User Settings: Missing security headers: strict-transport-security",
+      "Billing Page: Slow load time: 8400ms (max: 3000ms)",
+      "Billing Page: Missing security headers: strict-transport-security",
+      "Referral Program: Missing security headers: strict-transport-security",
+      "User Onboarding: Missing security headers: strict-transport-security",
+      "2FA Setup: Missing security headers: strict-transport-security",
+      "Email Verification: Missing security headers: strict-transport-security",
+      "Password Reset: Missing security headers: strict-transport-security",
+      "API /api/trading/market: Slow response: 1148ms (max: 500ms)",
+      "API /api/trading/signals: Slow response: 1170ms (max: 500ms)",
+      "API /api/portfolio: Slow response: 1227ms (max: 500ms)",
+      "API /api/marketplace/bots: Slow response: 1659ms (max: 500ms)",
+      "API /api/marketplace/strategies: Slow response: 1196ms (max: 500ms)",
+      "API /api/subscriptions: Slow response: 1184ms (max: 500ms)",
+      "API /api/contact: Slow response: 3204ms (max: 500ms)",
+      "API /api/newsletter/subscribe: Slow response: 2751ms (max: 500ms)",
+      "API /api/health: Slow response: 1586ms (max: 500ms)",
+      "API /api/health-check: Slow response: 1643ms (max: 500ms)"
+    ]
+  }
+}

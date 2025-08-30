@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="27" fill="#0066CC"/>
+  <circle cx="90" cy="62.99999999999999" r="27" fill="#00BBFF"/>
+  <rect x="45" y="99.00000000000001" width="90" height="18" rx="9" fill="#00BBFF"/>
+  <rect x="54" y="125.99999999999999" width="72" height="14.4" rx="7.2" fill="#00BBFF"/>
+  <text x="90" y="162" font-family="Arial, sans-serif" font-size="14.4" text-anchor="middle" fill="white">N</text>
+</svg>

@@ -1,0 +1,105 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="screenBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e293b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="#000000"/>
+  
+  <!-- Monitor frame -->
+  <rect x="20" y="20" width="360" height="260" fill="#1f2937" rx="8"/>
+  <rect x="30" y="30" width="340" height="240" fill="url(#screenBg)" rx="4"/>
+  
+  <!-- Terminal header -->
+  <rect x="30" y="30" width="340" height="25" fill="#374151" rx="4 4 0 0"/>
+  <circle cx="45" cy="42" r="4" fill="#ef4444"/>
+  <circle cx="60" cy="42" r="4" fill="#fbbf24"/>
+  <circle cx="75" cy="42" r="4" fill="#10b981"/>
+  <text x="200" y="47" text-anchor="middle" fill="#9ca3af" font-family="monospace" font-size="10">terminal.nexural.com</text>
+  
+  <!-- Code lines with glow effect -->
+  <g font-family="monospace" font-size="11" filter="url(#glow)">
+    <!-- Line 1 -->
+    <text x="40" y="75" fill="#06b6d4">const</text>
+    <text x="75" y="75" fill="#e5e7eb">tradingBot</text>
+    <text x="140" y="75" fill="#06b6d4">=</text>
+    <text x="150" y="75" fill="#10b981">new</text>
+    <text x="175" y="75" fill="#fbbf24">AITrader</text>
+    <text x="235" y="75" fill="#e5e7eb">(</text>
+    <text x="240" y="75" fill="#8b5cf6">{</text>
+    
+    <!-- Line 2 -->
+    <text x="50" y="95" fill="#e5e7eb">strategy:</text>
+    <text x="110" y="95" fill="#10b981">'momentum'</text>
+    <text x="170" y="95" fill="#e5e7eb">,</text>
+    
+    <!-- Line 3 -->
+    <text x="50" y="115" fill="#e5e7eb">risk:</text>
+    <text x="85" y="115" fill="#fbbf24">0.02</text>
+    <text x="110" y="115" fill="#e5e7eb">,</text>
+    
+    <!-- Line 4 -->
+    <text x="50" y="135" fill="#e5e7eb">symbols:</text>
+    <text x="105" y="135" fill="#e5e7eb">[</text>
+    <text x="115" y="135" fill="#10b981">'BTCUSDT'</text>
+    <text x="175" y="135" fill="#e5e7eb">,</text>
+    <text x="185" y="135" fill="#10b981">'ETHUSDT'</text>
+    <text x="235" y="135" fill="#e5e7eb">]</text>
+    
+    <!-- Line 5 -->
+    <text x="40" y="155" fill="#8b5cf6">}</text>
+    <text x="50" y="155" fill="#e5e7eb">)</text>
+    
+    <!-- Line 6 (empty) -->
+    
+    <!-- Line 7 -->
+    <text x="40" y="185" fill="#06b6d4">await</text>
+    <text x="75" y="185" fill="#e5e7eb">tradingBot</text>
+    <text x="135" y="185" fill="#06b6d4">.</text>
+    <text x="145" y="185" fill="#fbbf24">initialize</text>
+    <text x="200" y="185" fill="#e5e7eb">()</text>
+    
+    <!-- Line 8 -->
+    <text x="40" y="205" fill="#e5e7eb">console</text>
+    <text x="85" y="205" fill="#06b6d4">.</text>
+    <text x="95" y="205" fill="#fbbf24">log</text>
+    <text x="120" y="205" fill="#e5e7eb">(</text>
+    <text x="130" y="205" fill="#10b981">'🚀 Trading bot active!'</text>
+    <text x="260" y="205" fill="#e5e7eb">)</text>
+    
+    <!-- Line 9 -->
+    <text x="40" y="225" fill="#06b6d4">tradingBot</text>
+    <text x="100" y="225" fill="#06b6d4">.</text>
+    <text x="110" y="225" fill="#fbbf24">start</text>
+    <text x="140" y="225" fill="#e5e7eb">()</text>
+  </g>
+  
+  <!-- Cursor blinking -->
+  <rect x="150" y="218" width="2" height="12" fill="#10b981" opacity="0.8">
+    <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Glowing particles around code -->
+  <circle cx="320" cy="100" r="1.5" fill="#06b6d4" opacity="0.8">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="150" r="1" fill="#10b981" opacity="0.8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="340" cy="180" r="0.8" fill="#fbbf24" opacity="0.8">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Title -->
+  <text x="200" y="15" text-anchor="middle" fill="#e5e7eb" font-family="Arial" font-size="14" font-weight="bold">Live Trading Algorithm</text>
+</svg>

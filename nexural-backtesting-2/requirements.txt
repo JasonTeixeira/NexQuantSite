@@ -1,0 +1,46 @@
+# Nexural Backtesting System - Dependencies
+# =========================================
+
+# Core Data Processing
+pandas>=2.0.0
+polars>=0.20.0
+numpy>=1.24.0
+
+# Performance & Optimization
+optuna>=3.5.0
+numba>=0.58.0
+
+# Visualization & Reporting
+plotly>=5.15.0
+streamlit>=1.28.0
+
+# Statistical Computing
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Logging & Monitoring
+loguru>=0.7.0
+
+# Testing & Quality
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.0
+
+# Development Tools
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.0.0
+
+# Utilities
+tqdm>=4.66.0
+psutil>=5.9.0
+click>=8.1.0
+
+# Optional: Broker Integrations
+# alpaca-trade-api>=3.0.0
+# ib-insync>=0.9.86
+# python-binance>=1.0.17

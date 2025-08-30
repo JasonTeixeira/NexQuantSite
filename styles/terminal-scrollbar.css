@@ -1,0 +1,32 @@
+/* Terminal Output Scrollbar Styles */
+.terminal-output::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+  background: #0f1320;
+  border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+  background: #2a2a3e;
+  border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4e;
+}
+
+/* Firefox scrollbar */
+.terminal-output {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a3e #0f1320;
+}
+
+/* Ensure terminal output is scrollable */
+.terminal-output {
+  overflow-y: auto !important;
+  max-height: 100%;
+}
+

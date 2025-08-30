@@ -1,0 +1,389 @@
+# Worker Dockerfile for OCHcloud deployment
+# Specialized container for background processing and AI/ML tasks
+
+# Stage 1: Build Dependencies
+FROM node:18-alpine AS dependencies
+WORKDIR /app
+
+# Install system dependencies for native modules and ML libraries
+RUN apk add --no-cache \
+    python3 \
+    python3-dev \
+    py3-pip \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    musl-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    openblas-dev \
+    lapack-dev
+
+# Install Python ML libraries
+RUN pip3 install --no-cache-dir \
+    numpy \
+    pandas \
+    scikit-learn \
+    tensorflow-cpu \
+    matplotlib \
+    seaborn
+
+# Copy package files
+COPY nexus-quantum-frontend/nexus-quantum-terminal/package*.json ./
+COPY nexus-quantum-frontend/nexus-quantum-terminal/tsconfig.json ./
+
+# Install Node.js dependencies
+RUN npm ci --include=dev && npm cache clean --force
+
+# Stage 2: Build Worker Application
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies from previous stage
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=dependencies /app/package*.json ./
+
+# Copy worker source code
+COPY nexus-quantum-frontend/nexus-quantum-terminal/lib ./lib
+COPY nexus-quantum-frontend/nexus-quantum-terminal/workers ./workers
+
+# Create worker entry point
+RUN cat > worker.js << 'EOF'
+const { getMessageQueueService } = require('./lib/messaging/message-queue')
+const { getOpenSourceMLEngine } = require('./lib/ai/opensource-ml-engine')
+const { getSoftwareHSM } = require('./lib/security/software-hsm')
+const { getClusterManager } = require('./lib/database/cluster-manager')
+
+class NexuralWorker {
+  constructor() {
+    this.messageQueue = getMessageQueueService()
+    this.mlEngine = getOpenSourceMLEngine()
+    this.hsm = getSoftwareHSM()
+    this.db = getClusterManager()
+    this.isShuttingDown = false
+  }
+
+  async start() {
+    console.log('🚀 Starting Nexural Worker...')
+
+    // Subscribe to different message types
+    await this.setupTradeExecutionWorker()
+    await this.setupPortfolioUpdateWorker()
+    await this.setupMarketDataWorker()
+    await this.setupAIAnalysisWorker()
+    await this.setupNotificationWorker()
+    await this.setupReportGenerationWorker()
+
+    // Setup graceful shutdown
+    process.on('SIGTERM', () => this.gracefulShutdown())
+    process.on('SIGINT', () => this.gracefulShutdown())
+
+    console.log('✅ Worker started successfully')
+  }
+
+  async setupTradeExecutionWorker() {
+    await this.messageQueue.subscribe('trade_execution', async (message) => {
+      console.log(`📊 Processing trade execution: ${message.id}`)
+      
+      const { symbol, side, quantity, price, orderType, broker } = message.payload
+      
+      // Simulate trade execution (replace with actual broker API calls)
+      const executedPrice = price || (Math.random() * 100 + 50)
+      const executionTime = new Date()
+      
+      // Update portfolio
+      await this.db.query(`
+        INSERT INTO trades (user_id, tenant_id, symbol, side, quantity, executed_price, execution_time, broker, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'executed')
+      `, [message.userId, message.tenantId, symbol, side, quantity, executedPrice, executionTime, broker])
+
+      // Publish portfolio update
+      await this.messageQueue.publishPortfolioUpdate(
+        message.userId,
+        message.tenantId,
+        {
+          portfolioId: `${message.userId}_default`,
+          type: 'position_update',
+          data: { symbol, side, quantity, executedPrice }
+        }
+      )
+
+      console.log(`✅ Trade executed: ${symbol} ${side} ${quantity} @ ${executedPrice}`)
+    }, { concurrency: 5, prefetch: 10 })
+  }
+
+  async setupPortfolioUpdateWorker() {
+    await this.messageQueue.subscribe('portfolio_updates', async (message) => {
+      console.log(`💼 Processing portfolio update: ${message.id}`)
+      
+      const { portfolioId, type, data } = message.payload
+      
+      switch (type) {
+        case 'position_update':
+          await this.updatePosition(portfolioId, data)
+          break
+        case 'balance_update':
+          await this.updateBalance(portfolioId, data)
+          break
+        case 'performance_calculation':
+          await this.calculatePerformance(portfolioId, data)
+          break
+      }
+
+      console.log(`✅ Portfolio updated: ${portfolioId}`)
+    }, { concurrency: 10, prefetch: 20 })
+  }
+
+  async setupMarketDataWorker() {
+    await this.messageQueue.subscribe('market_data_processing', async (message) => {
+      console.log(`📈 Processing market data: ${message.id}`)
+      
+      const { symbols, dataType, data } = message.payload
+      
+      // Process market data (price updates, volume analysis, sentiment)
+      for (const symbol of symbols) {
+        await this.processMarketData(symbol, dataType, data[symbol])
+      }
+
+      console.log(`✅ Market data processed for ${symbols.length} symbols`)
+    }, { concurrency: 3, prefetch: 5 })
+  }
+
+  async setupAIAnalysisWorker() {
+    await this.messageQueue.subscribe('ai_analysis', async (message) => {
+      console.log(`🤖 Processing AI analysis: ${message.id}`)
+      
+      const { type, symbols, timeframe, parameters } = message.payload
+      
+      let results
+      switch (type) {
+        case 'portfolio_analysis':
+          results = await this.analyzePortfolio(symbols, parameters)
+          break
+        case 'market_prediction':
+          results = await this.predictMarket(symbols, timeframe, parameters)
+          break
+        case 'risk_assessment':
+          results = await this.assessRisk(symbols, parameters)
+          break
+      }
+
+      // Store results
+      await this.db.query(`
+        INSERT INTO ai_analysis_results (user_id, tenant_id, analysis_type, symbols, results, created_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+      `, [message.userId, message.tenantId, type, JSON.stringify(symbols), JSON.stringify(results)])
+
+      console.log(`✅ AI analysis completed: ${type}`)
+    }, { concurrency: 2, prefetch: 3 })
+  }
+
+  async setupNotificationWorker() {
+    await this.messageQueue.subscribe('notifications', async (message) => {
+      console.log(`📨 Processing notification: ${message.id}`)
+      
+      const { type, recipient, subject, content, priority } = message.payload
+      
+      switch (type) {
+        case 'email':
+          await this.sendEmail(recipient, subject, content)
+          break
+        case 'push':
+          await this.sendPushNotification(recipient, subject, content)
+          break
+        case 'sms':
+          await this.sendSMS(recipient, content)
+          break
+        case 'webhook':
+          await this.sendWebhook(recipient, { subject, content })
+          break
+      }
+
+      console.log(`✅ Notification sent: ${type} to ${recipient}`)
+    }, { concurrency: 20, prefetch: 50 })
+  }
+
+  async setupReportGenerationWorker() {
+    await this.messageQueue.subscribe('report_generation', async (message) => {
+      console.log(`📊 Processing report generation: ${message.id}`)
+      
+      const { templateId, parameters, format, recipients } = message.payload
+      
+      // Generate report
+      const reportData = await this.generateReport(templateId, parameters, message.userId, message.tenantId)
+      const reportFile = await this.formatReport(reportData, format)
+      
+      // Send to recipients
+      for (const recipient of recipients) {
+        await this.messageQueue.publishNotification(
+          message.userId,
+          message.tenantId,
+          {
+            type: 'email',
+            recipient,
+            subject: `Report: ${templateId}`,
+            content: 'Your requested report is attached.',
+            priority: 'normal'
+          }
+        )
+      }
+
+      console.log(`✅ Report generated and sent to ${recipients.length} recipients`)
+    }, { concurrency: 2, prefetch: 5 })
+  }
+
+  // Helper methods
+  async updatePosition(portfolioId, data) {
+    const { symbol, side, quantity, executedPrice } = data
+    
+    await this.db.query(`
+      INSERT INTO positions (portfolio_id, symbol, quantity, average_price, updated_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (portfolio_id, symbol) DO UPDATE SET
+        quantity = positions.quantity + CASE WHEN $5 = 'buy' THEN $3 ELSE -$3 END,
+        average_price = CASE 
+          WHEN $5 = 'buy' THEN (positions.average_price * positions.quantity + $4 * $3) / (positions.quantity + $3)
+          ELSE positions.average_price
+        END,
+        updated_at = NOW()
+    `, [portfolioId, symbol, quantity, executedPrice, side])
+  }
+
+  async updateBalance(portfolioId, data) {
+    // Implementation for balance updates
+  }
+
+  async calculatePerformance(portfolioId, data) {
+    // Implementation for performance calculations
+  }
+
+  async processMarketData(symbol, dataType, data) {
+    // Implementation for market data processing
+  }
+
+  async analyzePortfolio(symbols, parameters) {
+    // Use ML engine for portfolio analysis
+    return { analysis: 'Portfolio analysis results', symbols, parameters }
+  }
+
+  async predictMarket(symbols, timeframe, parameters) {
+    // Use ML engine for market prediction
+    return { prediction: 'Market prediction results', symbols, timeframe }
+  }
+
+  async assessRisk(symbols, parameters) {
+    // Risk assessment implementation
+    return { riskScore: Math.random(), symbols, parameters }
+  }
+
+  async sendEmail(recipient, subject, content) {
+    // Email sending implementation
+  }
+
+  async sendPushNotification(recipient, subject, content) {
+    // Push notification implementation
+  }
+
+  async sendSMS(recipient, content) {
+    // SMS sending implementation
+  }
+
+  async sendWebhook(url, data) {
+    // Webhook implementation
+  }
+
+  async generateReport(templateId, parameters, userId, tenantId) {
+    // Report generation implementation
+    return { template: templateId, data: parameters, generated: new Date() }
+  }
+
+  async formatReport(data, format) {
+    // Report formatting implementation
+    return `Report in ${format} format`
+  }
+
+  async gracefulShutdown() {
+    if (this.isShuttingDown) return
+    
+    console.log('⏹️ Gracefully shutting down worker...')
+    this.isShuttingDown = true
+    
+    try {
+      await this.messageQueue.cleanup()
+      await this.mlEngine.cleanup()
+      await this.hsm.cleanup()
+      process.exit(0)
+    } catch (error) {
+      console.error('Error during shutdown:', error)
+      process.exit(1)
+    }
+  }
+}
+
+// Start worker
+const worker = new NexuralWorker()
+worker.start().catch(error => {
+  console.error('Worker startup failed:', error)
+  process.exit(1)
+})
+EOF
+
+# Stage 3: Production Runtime
+FROM node:18-alpine AS runtime
+
+# Install system dependencies for production
+RUN apk add --no-cache \
+    curl \
+    ca-certificates \
+    tzdata \
+    dumb-init \
+    python3 \
+    py3-pip \
+    openblas \
+    lapack
+
+# Install Python ML libraries for runtime
+RUN pip3 install --no-cache-dir \
+    numpy \
+    pandas \
+    scikit-learn \
+    tensorflow-cpu
+
+# Create app user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S worker -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application
+COPY --from=builder --chown=worker:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=worker:nodejs /app/lib ./lib
+COPY --from=builder --chown=worker:nodejs /app/workers ./workers
+COPY --from=builder --chown=worker:nodejs /app/worker.js ./worker.js
+COPY --from=builder --chown=worker:nodejs /app/package.json ./package.json
+
+# Create directories for logs and models
+RUN mkdir -p /app/logs /app/models && \
+    chown -R worker:nodejs /app/logs /app/models
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV WORKER_TYPE=background
+ENV WORKER_CONCURRENCY=5
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
+    CMD pgrep -f "node worker.js" || exit 1
+
+# Switch to non-root user
+USER worker
+
+# Start worker with dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "worker.js"]

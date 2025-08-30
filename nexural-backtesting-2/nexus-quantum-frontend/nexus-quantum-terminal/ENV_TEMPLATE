@@ -1,0 +1,116 @@
+# ====================================
+# NEXUS QUANTUM TERMINAL - ENVIRONMENT CONFIGURATION
+# ====================================
+# Copy this file to .env.local and update with your values
+# NEVER commit .env.local to version control!
+
+# ====================================
+# BACKEND CONNECTION (REQUIRED)
+# ====================================
+# Change these to match your backend server
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+NEXT_PUBLIC_API_VERSION=v1
+
+# If backend is on different machine, use IP:
+# NEXT_PUBLIC_BACKEND_URL=http://192.168.1.100:8000
+# NEXT_PUBLIC_WS_URL=ws://192.168.1.100:8000
+
+# For production:
+# NEXT_PUBLIC_BACKEND_URL=https://api.yourplatform.com
+# NEXT_PUBLIC_WS_URL=wss://api.yourplatform.com
+
+# ====================================
+# FEATURE FLAGS
+# ====================================
+NEXT_PUBLIC_ENABLE_LIVE_TRADING=false
+NEXT_PUBLIC_ENABLE_AI=true
+NEXT_PUBLIC_ENABLE_BACKTESTING=true
+NEXT_PUBLIC_ENABLE_PAPER_TRADING=true
+NEXT_PUBLIC_ENABLE_ADVANCED_CHARTS=true
+NEXT_PUBLIC_ENABLE_SOCIAL_FEATURES=false
+
+# ====================================
+# APPLICATION SETTINGS
+# ====================================
+NEXT_PUBLIC_APP_NAME="Nexus Quantum Terminal"
+NEXT_PUBLIC_APP_VERSION="0.1.0"
+NEXT_PUBLIC_DEFAULT_THEME=dark
+NEXT_PUBLIC_DEFAULT_LANGUAGE=en
+NEXT_PUBLIC_TIMEZONE=America/New_York
+
+# ====================================
+# MONITORING & ANALYTICS (OPTIONAL)
+# ====================================
+# Only add if you have these services
+# NEXT_PUBLIC_SENTRY_DSN=
+# NEXT_PUBLIC_GA_TRACKING_ID=
+# NEXT_PUBLIC_MIXPANEL_TOKEN=
+# NEXT_PUBLIC_HOTJAR_ID=
+
+# ====================================
+# DEVELOPMENT SETTINGS
+# ====================================
+# Only for development environment
+NEXT_PUBLIC_DEBUG_MODE=false
+NEXT_PUBLIC_MOCK_DATA=false
+NEXT_PUBLIC_DISABLE_AUTH=false
+NEXT_PUBLIC_LOG_LEVEL=error
+
+# ====================================
+# RATE LIMITING
+# ====================================
+# Requests per minute
+NEXT_PUBLIC_API_RATE_LIMIT=100
+NEXT_PUBLIC_WS_RATE_LIMIT=1000
+
+# ====================================
+# TIMEOUTS (milliseconds)
+# ====================================
+NEXT_PUBLIC_API_TIMEOUT=30000
+NEXT_PUBLIC_WS_TIMEOUT=60000
+NEXT_PUBLIC_WS_RECONNECT_DELAY=5000
+
+# ====================================
+# DATA REFRESH INTERVALS (milliseconds)
+# ====================================
+NEXT_PUBLIC_QUOTE_REFRESH_INTERVAL=1000
+NEXT_PUBLIC_PORTFOLIO_REFRESH_INTERVAL=5000
+NEXT_PUBLIC_NEWS_REFRESH_INTERVAL=60000
+
+# ====================================
+# LIMITS
+# ====================================
+NEXT_PUBLIC_MAX_SYMBOLS_PER_WATCHLIST=50
+NEXT_PUBLIC_MAX_STRATEGIES_PER_USER=100
+NEXT_PUBLIC_MAX_BACKTEST_DAYS=3650
+NEXT_PUBLIC_MAX_CHART_DATAPOINTS=10000
+
+# ====================================
+# EXTERNAL SERVICES (Frontend Safe)
+# ====================================
+# These are public keys safe for frontend
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+# NEXT_PUBLIC_MAPBOX_TOKEN=
+# NEXT_PUBLIC_ALGOLIA_APP_ID=
+
+# ====================================
+# DO NOT ADD THESE HERE!
+# ====================================
+# These should ONLY be in backend .env:
+# ❌ OPENAI_API_KEY
+# ❌ ANTHROPIC_API_KEY
+# ❌ DATABASE_URL
+# ❌ JWT_SECRET
+# ❌ POLYGON_API_KEY
+# ❌ ALPACA_SECRET_KEY
+# ❌ Any secret/private keys
+
+# ====================================
+# NOTES
+# ====================================
+# 1. All NEXT_PUBLIC_* variables are exposed to the browser
+# 2. Never put sensitive data in NEXT_PUBLIC_* variables
+# 3. Backend API keys should only exist on backend server
+# 4. Use server-side API routes for sensitive operations
+# 5. This file is a template - create .env.local for actual values

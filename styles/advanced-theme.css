@@ -1,0 +1,194 @@
+/* Advanced Theme System - Phase 2 Enhancement */
+
+/* CSS Custom Properties (will be dynamically set by theme provider) */
+:root {
+  /* Core Colors */
+  --color-primary: #0f1320;
+  --color-secondary: #1a1a2e;
+  --color-tertiary: #15151f;
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0b8;
+  --text-accent: #00bbff;
+  --text-muted: #606078;
+  
+  /* Border Colors */
+  --border-primary: #2a2a3e;
+  --border-secondary: #3a3a4e;
+  --border-accent: #00bbff;
+  
+  /* Status Colors */
+  --color-success: #00ff88;
+  --color-warning: #ffaa00;
+  --color-error: #ff6b6b;
+  --color-info: #00bbff;
+  
+  /* Chart Colors */
+  --chart-primary: #00bbff;
+  --chart-secondary: #4a4aff;
+  --chart-tertiary: #00ff88;
+  --chart-grid: #2a2a3e;
+  --chart-axis: #3a3a4e;
+  --chart-tooltip: #1a1a2e;
+  
+  /* AI Colors */
+  --ai-primary: #4ecdc4;
+  --ai-secondary: #44a08d;
+  --ai-glow: rgba(78, 205, 196, 0.3);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #00bbff 0%, #4a4aff 100%);
+  --gradient-secondary: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  --gradient-accent: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+  
+  /* Effects */
+  --effect-blur: backdrop-blur-sm;
+  --effect-shadow: drop-shadow-lg;
+  --effect-glow: 0 0 20px rgba(0, 187, 255, 0.3);
+  --border-radius: 0.75rem;
+  
+  /* Animations */
+  --animation-duration: 200ms;
+  --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Theme-aware utility classes */
+.theme-bg-primary { background-color: var(--color-primary); }
+.theme-bg-secondary { background-color: var(--color-secondary); }
+.theme-bg-tertiary { background-color: var(--color-tertiary); }
+
+.theme-text-primary { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-text-accent { color: var(--text-accent); }
+.theme-text-muted { color: var(--text-muted); }
+
+.theme-border-primary { border-color: var(--border-primary); }
+.theme-border-secondary { border-color: var(--border-secondary); }
+.theme-border-accent { border-color: var(--border-accent); }
+
+.theme-gradient-primary { background: var(--gradient-primary); }
+.theme-gradient-secondary { background: var(--gradient-secondary); }
+.theme-gradient-accent { background: var(--gradient-accent); }
+
+/* Customization Classes */
+.font-small { font-size: 0.875rem; }
+.font-medium { font-size: 1rem; }
+.font-large { font-size: 1.125rem; }
+
+.reduce-motion * {
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+}
+
+.high-contrast {
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --border-primary: #ffffff;
+  --border-secondary: #e0e0e0;
+  filter: contrast(1.2);
+}
+
+/* Advanced theme transitions */
+* {
+  transition: 
+    background-color var(--animation-duration) var(--animation-easing),
+    border-color var(--animation-duration) var(--animation-easing),
+    color var(--animation-duration) var(--animation-easing),
+    box-shadow var(--animation-duration) var(--animation-easing);
+}
+
+/* Theme-specific scrollbars */
+.theme-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.theme-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-secondary);
+  border-radius: 3px;
+}
+
+.theme-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 3px;
+  transition: background-color var(--animation-duration) var(--animation-easing);
+}
+
+.theme-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--border-accent);
+}
+
+/* Enhanced focus styles */
+.theme-focus:focus-visible {
+  outline: 2px solid var(--border-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 187, 255, 0.1);
+}
+
+/* Theme-aware animations */
+@keyframes theme-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes theme-glow {
+  0%, 100% { box-shadow: var(--effect-glow); }
+  50% { box-shadow: 0 0 30px var(--ai-glow); }
+}
+
+.theme-pulse {
+  animation: theme-pulse 2s ease-in-out infinite;
+}
+
+.theme-glow {
+  animation: theme-glow 3s ease-in-out infinite;
+}
+
+/* Responsive theme adjustments */
+@media (max-width: 768px) {
+  .font-small { font-size: 0.8125rem; }
+  .font-medium { font-size: 0.9375rem; }
+  .font-large { font-size: 1.0625rem; }
+}
+
+/* Theme-specific chart styling */
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line {
+  stroke: var(--chart-axis) !important;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--chart-grid) !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: var(--chart-tooltip) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Advanced theme performance optimizations */
+.theme-optimized {
+  will-change: background-color, border-color, color;
+  transform: translateZ(0); /* Force GPU acceleration */
+}
+
+/* Print theme adjustments */
+@media print {
+  :root {
+    --color-primary: #ffffff;
+    --color-secondary: #f8f9fa;
+    --text-primary: #000000;
+    --text-secondary: #666666;
+    --border-primary: #cccccc;
+  }
+  
+  .theme-glow,
+  .theme-pulse {
+    animation: none !important;
+  }
+}
+
