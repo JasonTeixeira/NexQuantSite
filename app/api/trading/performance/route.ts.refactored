@@ -1,0 +1,111 @@
+/**
+ * 📊 API ROUTE: Trading Performance
+ * Endpoint for retrieving performance metrics for trading strategies
+ */
+
+import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { 
+  createSuccessResponse, 
+  createErrorResponse, 
+  handleApiError,
+  HTTP_STATUS,
+  parseQueryParams
+} from '@/core/utils/apiUtils';
+import mlService from '@/core/api/MlService';
+import { getStrategyPerformanceById } from '@/lib/models/trading';
+import { reportError, withPerformanceTracking } from '@/lib/monitoring';
+
+/**
+ * GET /api/trading/performance
+ * Retrieve performance metrics for a specific strategy
+ */
+export async function GET(req: NextRequest) {
+  try {
+    // Get user session to check permissions
+    const session = await getServerSession();
+    
+    if (!session?.user) {
+      return createErrorResponse('Authentication required', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    // Parse query parameters
+    const { searchParams } = new URL(req.url);
+    const params = parseQueryParams(searchParams, {
+      strategyId: { type: 'string', required: true },
+      period: { type: 'string', default: 'all' }
+    });
+    
+    // Validate period
+    const validPeriods = ['day', 'week', 'month', 'year', 'all'];
+    if (!validPeriods.includes(params.period)) {
+      return createErrorResponse(
+        `Invalid period. Must be one of: ${validPeriods.join(', ')}`, 
+        HTTP_STATUS.BAD_REQUEST
+      );
+    }
+
+    // Get performance metrics from the database with performance tracking
+    return await withPerformanceTracking(
+      async () => {
+        const performance = await getStrategyPerformanceById(
+          params.strategyId, 
+          params.period as 'day' | 'week' | 'month' | 'year' | 'all'
+        );
+        
+        // If performance data not found in our database, try ML service
+        if (!performance) {
+          try {
+            // Try to get performance from ML service
+            const mlPerformance = await mlService.getStrategyPerformance(
+              params.strategyId, 
+              params.period as 'day' | 'week' | 'month' | 'year' | 'all'
+            );
+            
+            if (!mlPerformance) {
+              // No performance data available from either source
+              return createSuccessResponse(
+                null, 
+                `No performance data available for strategy ${params.strategyId}`
+              );
+            }
+            
+            return createSuccessResponse(mlPerformance);
+          } catch (mlError) {
+            // Report ML service error
+            reportError({
+              component: 'PerformanceRoute',
+              action: 'getPerformanceFromMlService',
+              error: mlError,
+              context: { 
+                strategyId: params.strategyId,
+                period: params.period
+              }
+            });
+            
+            // Return informative error response
+            return createErrorResponse(
+              'Unable to fetch performance metrics from ML service', 
+              HTTP_STATUS.BAD_GATEWAY
+            );
+          }
+        }
+        
+        return createSuccessResponse(performance);
+      },
+      'getStrategyPerformance',
+      { strategyId: params.strategyId, period: params.period }
+    );
+  } catch (error) {
+    // Report the error
+    reportError({
+      component: 'PerformanceRoute',
+      action: 'getPerformance',
+      error,
+      severity: 'high'
+    });
+    
+    console.error('Error fetching performance metrics:', error);
+    return handleApiError(error, 'Failed to fetch performance metrics');
+  }
+}

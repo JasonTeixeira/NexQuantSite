@@ -2,13 +2,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateJWT } from '@/lib/auth/production-auth'
 
-// Development admin credentials (replace with environment variables in production)
-const ADMIN_CREDENTIALS = {
-  'admin@nexural.com': 'admin123',
-  'manager@nexural.com': 'manager123',
-  'demo@nexural.com': 'demo123',
-  'super@nexural.com': 'super123'
-}
+// Admin authentication should use database in production
+// In development, we can use environment variables for testing
+const ADMIN_CREDENTIALS = process.env.NODE_ENV === 'development' ? {
+  'admin@nexural.com': process.env.ADMIN_PASSWORD || 'secure_admin_password',
+  'manager@nexural.com': process.env.MANAGER_PASSWORD || 'secure_manager_password',
+  'demo@nexural.com': process.env.DEMO_ADMIN_PASSWORD || 'secure_demo_password',
+  'super@nexural.com': process.env.SUPER_ADMIN_PASSWORD || 'secure_super_password'
+} : {}
 
 export async function POST(request: NextRequest) {
   try {

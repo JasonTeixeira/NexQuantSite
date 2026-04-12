@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "./providers"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import Navigation from "@/components/Navigation"
@@ -11,9 +11,7 @@ import GlobalRiskWarning from "@/components/GlobalRiskWarning"
 import ScrollToTop from "@/components/ScrollToTop"
 import PageTransition from "@/components/PageTransition"
 import ErrorBoundary from "@/components/ui/error-boundary"
-import { AccessibilityProvider } from "@/components/ui/accessibility-provider"
 import Chatbot from "@/components/ui/chatbot"
-import { AuthProvider } from "@/lib/auth/auth-context"
 import ConditionalFooter from "@/components/ConditionalFooter"
 import PWAInstallPrompt from "@/components/pwa/install-prompt"
 import PWAServiceWorker from "@/components/pwa/service-worker"
@@ -146,40 +144,36 @@ export default function RootLayout({
         <meta name="firebase-messaging-sw-version" content="1.0.0" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-          <AccessibilityProvider>
-            <AuthProvider>
-              <ErrorBoundary>
-                <GlobalRiskWarning />
-                <div
-                  className="min-h-screen bg-black text-white"
-                  style={{
-                    background: "radial-gradient(ellipse at top, rgba(6,182,212,0.05) 0%, rgba(0,0,0,1) 50%)",
-                  }}
-                >
-                  <Navigation />
-                  <PremiumFeaturesNav />
-                  <PageTransition>
-                    <main id="main-content" role="main">
-                      {children}
-                    </main>
-                  </PageTransition>
-                  <ConditionalFooter />
-                  <ScrollToTop />
-                  <Chatbot />
-                  
-                  {/* 📱 PWA Components */}
-                  <PWAInstallPrompt />
-                </div>
-              </ErrorBoundary>
-            </AuthProvider>
-          </AccessibilityProvider>
+        <Providers>
+          <ErrorBoundary>
+            <GlobalRiskWarning />
+            <div
+              className="min-h-screen bg-black text-white"
+              style={{
+                background: "radial-gradient(ellipse at top, rgba(6,182,212,0.05) 0%, rgba(0,0,0,1) 50%)",
+              }}
+            >
+              <Navigation />
+              <PremiumFeaturesNav />
+              <PageTransition>
+                <main id="main-content" role="main">
+                  {children}
+                </main>
+              </PageTransition>
+              <ConditionalFooter />
+              <ScrollToTop />
+              <Chatbot />
+              
+              {/* 📱 PWA Components */}
+              <PWAInstallPrompt />
+            </div>
+          </ErrorBoundary>
           <Toaster />
           <SonnerToaster />
           
           {/* 🚀 PWA Service Worker Registration */}
           <PWAServiceWorker />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )

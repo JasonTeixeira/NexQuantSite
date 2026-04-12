@@ -1,131 +1,188 @@
-import crypto from "crypto"
+/**
+ * 🔒 ADMIN SECURITY MIDDLEWARE
+ * Protects admin routes from unauthorized access
+ */
 
-interface AdminUser {
-  id: string
-  email: string
-  role: string
-  permissions: string[]
-  sessionId: string
-  lastLogin?: Date
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyJWT } from './auth/production-auth';
+import { adminAuthRateLimiter } from './rate-limiter';
 
-interface RateLimitEntry {
-  count: number
-  resetTime: number
-}
+// Types for admin roles
+type AdminRole = 'admin' | 'super_admin';
 
-class AdminSecurityManager {
-  private rateLimitMap = new Map<string, RateLimitEntry>()
-  private readonly JWT_SECRET = process.env.JWT_SECRET || "nexural-admin-secret-key-2024"
-  private readonly CSRF_SECRET = process.env.CSRF_SECRET || "nexural-csrf-secret-2024"
-
-  // Rate limiting
-  checkRateLimit(key: string, maxAttempts = 5, windowMs = 15 * 60 * 1000): { allowed: boolean; remaining: number } {
-    const now = Date.now()
-    const entry = this.rateLimitMap.get(key)
-
-    if (!entry || now > entry.resetTime) {
-      // Reset or create new entry
-      this.rateLimitMap.set(key, {
-        count: 1,
-        resetTime: now + windowMs,
-      })
-      return { allowed: true, remaining: maxAttempts - 1 }
+/**
+ * Verify if the user has admin privileges
+ * @param req Next.js request
+ * @returns NextResponse or null if authorized
+ */
+export async function verifyAdminAccess(req: NextRequest): Promise<NextResponse | null> {
+  try {
+    // First apply rate limiting
+    const rateLimitResponse = await adminAuthRateLimiter(req);
+    if (rateLimitResponse) {
+      return rateLimitResponse;
     }
 
-    if (entry.count >= maxAttempts) {
-      return { allowed: false, remaining: 0 }
+    // Get token from cookies or Authorization header
+    const token = req.cookies.get('admin_token')?.value || 
+                  req.headers.get('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Authentication required',
+          message: 'Admin access requires authentication'
+        }),
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
     }
-
-    entry.count++
-    return { allowed: true, remaining: maxAttempts - entry.count }
-  }
-
-  // Generate simple tokens
-  generateTokens(user: AdminUser) {
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      permissions: user.permissions,
-      sessionId: user.sessionId,
-      iat: Date.now(),
-      exp: Date.now() + 15 * 60 * 1000, // 15 minutes
+    
+    // Verify token
+    const payload = verifyJWT(token);
+    
+    if (!payload) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Invalid or expired token',
+          message: 'Please log in again to continue'
+        }),
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
     }
-
-    const accessToken = Buffer.from(JSON.stringify(payload)).toString("base64")
-    const refreshToken = crypto.randomUUID()
-
-    return { accessToken, refreshToken }
-  }
-
-  // Verify token
-  verifyToken(token: string): AdminUser | null {
-    try {
-      const payload = JSON.parse(Buffer.from(token, "base64").toString())
-
-      // Check if token is expired
-      if (Date.now() > payload.exp) {
-        return null
+    
+    // Check for admin role
+    const role = payload.role as string;
+    const validAdminRoles: AdminRole[] = ['admin', 'super_admin'];
+    
+    if (!role || !validAdminRoles.includes(role as AdminRole)) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Insufficient permissions',
+          message: 'Admin privileges required'
+        }),
+        {
+          status: 403,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+    }
+    
+    // Add user info to request headers for downstream usage
+    req.headers.set('X-User-ID', payload.id);
+    req.headers.set('X-User-Role', role);
+    req.headers.set('X-User-Email', payload.email);
+    
+    // User is authenticated and authorized as admin
+    return null;
+  } catch (error) {
+    console.error('Admin authorization error:', error);
+    
+    return new NextResponse(
+      JSON.stringify({
+        error: 'Authentication error',
+        message: 'An error occurred during authentication'
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
       }
-
-      return {
-        id: payload.id,
-        email: payload.email,
-        role: payload.role,
-        permissions: payload.permissions,
-        sessionId: payload.sessionId,
-      }
-    } catch (error) {
-      console.error("Token verification failed:", error)
-      return null
-    }
-  }
-
-  // Generate CSRF token
-  generateCSRFToken(sessionId: string): string {
-    const timestamp = Date.now().toString()
-    const data = `${sessionId}:${timestamp}`
-    const hash = crypto.createHmac("sha256", this.CSRF_SECRET).update(data).digest("hex")
-    return `${timestamp}.${hash}`
-  }
-
-  // Verify CSRF token
-  verifyCSRFToken(token: string, sessionId: string): boolean {
-    try {
-      const [timestamp, hash] = token.split(".")
-      const data = `${sessionId}:${timestamp}`
-      const expectedHash = crypto.createHmac("sha256", this.CSRF_SECRET).update(data).digest("hex")
-
-      // Check if token is not older than 1 hour
-      const tokenAge = Date.now() - Number.parseInt(timestamp)
-      const maxAge = 60 * 60 * 1000 // 1 hour
-
-      return hash === expectedHash && tokenAge < maxAge
-    } catch (error) {
-      return false
-    }
-  }
-
-  // Clean up expired rate limit entries
-  cleanupRateLimit() {
-    const now = Date.now()
-    for (const [key, entry] of this.rateLimitMap.entries()) {
-      if (now > entry.resetTime) {
-        this.rateLimitMap.delete(key)
-      }
-    }
+    );
   }
 }
 
-export const adminSecurityManager = new AdminSecurityManager()
-
-// Clean up rate limit entries every 5 minutes
-if (typeof setInterval !== "undefined") {
-  setInterval(
-    () => {
-      adminSecurityManager.cleanupRateLimit()
-    },
-    5 * 60 * 1000,
-  )
+/**
+ * Check if a specific action requires super admin privileges
+ * @param action The action being performed
+ * @returns Whether super admin is required
+ */
+export function requiresSuperAdmin(action: string): boolean {
+  const superAdminActions = [
+    'deleteUser',
+    'resetSystem',
+    'configureSystem',
+    'addAdmin',
+    'removeAdmin',
+    'updatePermissions'
+  ];
+  
+  return superAdminActions.includes(action);
 }
+
+/**
+ * Verify if the user has super admin privileges
+ * @param req Next.js request
+ * @param action Optional action being performed
+ * @returns NextResponse or null if authorized
+ */
+export async function verifySuperAdminAccess(
+  req: NextRequest, 
+  action?: string
+): Promise<NextResponse | null> {
+  // First verify admin access
+  const adminCheck = await verifyAdminAccess(req);
+  if (adminCheck) {
+    return adminCheck;
+  }
+  
+  // Get role from headers (set by verifyAdminAccess)
+  const role = req.headers.get('X-User-Role');
+  
+  if (role !== 'super_admin') {
+    return new NextResponse(
+      JSON.stringify({
+        error: 'Insufficient permissions',
+        message: action 
+          ? `The action "${action}" requires super admin privileges` 
+          : 'Super admin privileges required'
+      }),
+      {
+        status: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+  }
+  
+  // User is authenticated and authorized as super admin
+  return null;
+}
+
+/**
+ * Middleware factory for admin routes
+ * @param options Configuration options
+ * @returns Middleware function
+ */
+export function createAdminMiddleware(options: {
+  requireSuperAdmin?: boolean;
+  action?: string;
+}) {
+  return async function adminMiddleware(req: NextRequest) {
+    // Check if super admin is required
+    if (options.requireSuperAdmin || (options.action && requiresSuperAdmin(options.action))) {
+      return await verifySuperAdminAccess(req, options.action);
+    } else {
+      return await verifyAdminAccess(req);
+    }
+  };
+}
+
+// Export a default admin middleware
+export const adminMiddleware = createAdminMiddleware({});
+
+// Export a super admin middleware
+export const superAdminMiddleware = createAdminMiddleware({ requireSuperAdmin: true });

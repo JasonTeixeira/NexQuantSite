@@ -1,0 +1,201 @@
+<UserControl x:Class="QuantumTrader.Views.PaperTradingControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border Background="{StaticResource NexusAIBackgroundPrimary}"
+            BorderBrush="{StaticResource NexusAIBorderPrimary}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="16">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Paper Trading Header -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource NexusAIAccentPrimary}"
+                    CornerRadius="6"
+                    Padding="12"
+                    Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="📋" FontSize="24" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="PAPER TRADING - LIVE STRATEGY TESTING"
+                                     FontWeight="Bold"
+                                     FontSize="16"
+                                     Foreground="{StaticResource NexusAITextPrimary}"/>
+                            <TextBlock Text="Real strategies • Live data • Zero risk"
+                                     FontSize="12"
+                                     Foreground="{StaticResource NexusAITextSecondary}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Border Background="#00FF88" CornerRadius="12" Padding="8,4" Margin="0,0,8,0">
+                            <TextBlock Text="PAPER MODE" FontWeight="Bold" FontSize="12" Foreground="Black"/>
+                        </Border>
+                        <Ellipse x:Name="ConnectionIndicator" Width="12" Height="12" Fill="#00FF88"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Control Buttons -->
+            <Grid Grid.Row="1" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        x:Name="StartPaperTradingButton"
+                        Content="🚀 START PAPER TRADING"
+                        Style="{StaticResource NexusButtonSuccess}"
+                        Click="StartPaperTradingButton_Click"
+                        Margin="0,0,8,0"/>
+
+                <Button Grid.Column="1"
+                        x:Name="StopPaperTradingButton"
+                        Content="🛑 STOP PAPER TRADING"
+                        Style="{StaticResource NexusButtonError}"
+                        Click="StopPaperTradingButton_Click"
+                        Margin="4,0,4,0"
+                        IsEnabled="False"/>
+
+                <Button Grid.Column="2"
+                        x:Name="ViewReportButton"
+                        Content="📊 VIEW REPORT"
+                        Style="{StaticResource NexusButtonSecondary}"
+                        Click="ViewReportButton_Click"
+                        Margin="8,0,0,0"/>
+            </Grid>
+
+            <!-- Status Display -->
+            <Border Grid.Row="2"
+                    Background="{StaticResource NexusAIBackgroundSecondary}"
+                    BorderBrush="{StaticResource NexusAIBorderSecondary}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12"
+                    Margin="0,0,0,16">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Market Data" FontWeight="Bold" FontSize="12" Foreground="{StaticResource NexusAITextSecondary}"/>
+                        <TextBlock x:Name="MarketDataStatus" Text="Disconnected" FontSize="14" Foreground="{StaticResource NexusAITextPrimary}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Strategies" FontWeight="Bold" FontSize="12" Foreground="{StaticResource NexusAITextSecondary}"/>
+                        <TextBlock x:Name="StrategiesStatus" Text="0 Deployed" FontSize="14" Foreground="{StaticResource NexusAITextPrimary}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Risk Engine" FontWeight="Bold" FontSize="12" Foreground="{StaticResource NexusAITextSecondary}"/>
+                        <TextBlock x:Name="RiskEngineStatus" Text="Inactive" FontSize="14" Foreground="{StaticResource NexusAITextPrimary}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3">
+                        <TextBlock Text="Session Time" FontWeight="Bold" FontSize="12" Foreground="{StaticResource NexusAITextSecondary}"/>
+                        <TextBlock x:Name="SessionTimeStatus" Text="00:00:00" FontSize="14" Foreground="{StaticResource NexusAITextPrimary}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Live Activity Feed -->
+            <Border Grid.Row="3"
+                    Background="{StaticResource NexusAIBackgroundSecondary}"
+                    BorderBrush="{StaticResource NexusAIBorderSecondary}"
+                    BorderThickness="1"
+                    CornerRadius="6">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{StaticResource NexusAIAccentSecondary}"
+                            Padding="12,8">
+                        <TextBlock Text="📊 LIVE ACTIVITY FEED"
+                                 FontWeight="Bold"
+                                 FontSize="14"
+                                 Foreground="{StaticResource NexusAITextPrimary}"/>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="12">
+                        <ItemsControl x:Name="ActivityFeed">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource NexusAIBackgroundTertiary}"
+                                            BorderBrush="{StaticResource NexusAIBorderTertiary}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="8"
+                                            Margin="0,0,0,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                     Text="{Binding Icon}"
+                                                     FontSize="16"
+                                                     Margin="0,0,8,0"
+                                                     VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Column="1"
+                                                     Text="{Binding Message}"
+                                                     FontSize="12"
+                                                     Foreground="{StaticResource NexusAITextPrimary}"
+                                                     TextWrapping="Wrap"
+                                                     VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Column="2"
+                                                     Text="{Binding Timestamp, StringFormat='HH:mm:ss'}"
+                                                     FontSize="10"
+                                                     Foreground="{StaticResource NexusAITextTertiary}"
+                                                     VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
+
+
+
+
+
+
+
+
+

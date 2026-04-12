@@ -1,91 +1,88 @@
-"use client"
+/**
+ * 📊 Indicators Section
+ * Showcases the various trading indicators available in the platform
+ */
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { ExternalLink, TrendingUp } from "lucide-react"
-import { indicators, type Indicator } from "@/lib/indicator-data"
-import IndicatorModal from "./IndicatorModal"
+import React from "react";
 
-export default function IndicatorsSection() {
-  const [selectedIndicator, setSelectedIndicator] = useState<Indicator | null>(null)
+const IndicatorsSection = () => {
+  // Array of indicator types and examples
+  const indicators = [
+    {
+      category: "Trend",
+      examples: ["Moving Averages", "MACD", "Parabolic SAR", "ADX", "Ichimoku Cloud"]
+    },
+    {
+      category: "Momentum",
+      examples: ["RSI", "Stochastic", "CCI", "Williams %R", "Rate of Change"]
+    },
+    {
+      category: "Volatility",
+      examples: ["Bollinger Bands", "ATR", "Standard Deviation", "Keltner Channel"]
+    },
+    {
+      category: "Volume",
+      examples: ["OBV", "Money Flow Index", "Volume Profile", "Accumulation/Distribution"]
+    },
+    {
+      category: "Advanced AI",
+      examples: ["Neural Network Signals", "Machine Learning Pattern Recognition", "Sentiment Analysis", "Anomaly Detection"]
+    }
+  ];
 
   return (
-    <>
-      <section id="indicators" className="py-20 bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 font-mono">
-              Proprietary <span className="text-primary">Indicators</span>
-            </h2>
-            <p className="text-lg text-gray-400 max-w-3xl mx-auto">
-              A selection of our high-precision indicators designed to give you a market edge. Click to learn more.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {indicators.map((indicator, index) => (
-              <motion.div
-                key={indicator.id}
-                className="aspect-w-16 aspect-h-9 cyberpunk-card border border-gray-800 bg-gray-900/50 flex items-center justify-center p-4 hover:border-primary transition-colors duration-300 cursor-pointer group"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: (index % 3) * 0.1, duration: 0.5 }}
-                onClick={() => setSelectedIndicator(indicator)}
-              >
-                <div className="text-center">
-                  <p className="font-mono text-lg text-gray-300 group-hover:text-primary transition-colors">
-                    {indicator.name}
-                  </p>
-                  <p className="font-mono text-xs text-gray-500 mt-1">Click to view details</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Cool TradingView Button */}
-          <motion.div
-            className="flex justify-center mt-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            <motion.a
-              href="https://www.tradingview.com/scripts/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/50 rounded-lg font-mono font-semibold text-white text-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/25"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Animated background effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-              {/* Pulsing border effect */}
-              <div className="absolute inset-0 rounded-lg border-2 border-primary/0 group-hover:border-primary/30 group-hover:animate-pulse" />
-
-              {/* Content */}
-              <TrendingUp className="w-6 h-6 text-primary group-hover:rotate-12 transition-transform duration-300" />
-              <span className="relative z-10 group-hover:text-primary transition-colors duration-300">
-                Explore More Indicators
-              </span>
-              <ExternalLink className="w-5 h-5 text-primary/70 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
-
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-            </motion.a>
-          </motion.div>
+    <section className="py-16 bg-gradient-to-b from-gray-900 to-black">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+            Advanced Technical Indicators
+          </h2>
+          <p className="text-lg text-gray-300">
+            Our platform offers a comprehensive suite of technical indicators to 
+            power your trading strategies, enhanced with proprietary AI models.
+          </p>
         </div>
-      </section>
 
-      {selectedIndicator && <IndicatorModal indicator={selectedIndicator} onClose={() => setSelectedIndicator(null)} />}
-    </>
-  )
-}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {indicators.map((group, index) => (
+            <div 
+              key={index} 
+              className="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all"
+            >
+              <h3 className="text-xl font-semibold mb-4 text-cyan-400">{group.category} Indicators</h3>
+              <ul className="space-y-2">
+                {group.examples.map((indicator, idx) => (
+                  <li key={idx} className="flex items-center text-gray-200">
+                    <svg 
+                      className="w-4 h-4 mr-2 text-cyan-500" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24" 
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M5 13l4 4L19 7" 
+                      />
+                    </svg>
+                    {indicator}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <button className="px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-md transition-colors">
+            Explore All Indicators
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default IndicatorsSection;

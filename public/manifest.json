@@ -1,148 +1,106 @@
 {
   "name": "Nexural Trading Platform",
   "short_name": "Nexural",
-  "description": "Professional trading platform with AI-powered strategies, social trading, and comprehensive learning resources",
+  "description": "AI-powered trading platform with automated bots, real-time signals, and comprehensive market analysis",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#0066CC",
+  "theme_color": "#00BCD4",
   "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en",
-  "dir": "ltr",
-  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View your trading dashboard",
       "url": "/dashboard",
-      "icons": [
-        {
-          "src": "/icons/shortcut-dashboard.svg",
-          "sizes": "192x192",
-          "type": "image/svg+xml"
-        }
-      ]
+      "icons": [{ "src": "/icons/dashboard-icon.png", "sizes": "192x192" }]
     },
     {
-      "name": "Community",
-      "short_name": "Community",
-      "description": "Join the trading community",
-      "url": "/community",
-      "icons": [
-        {
-          "src": "/icons/shortcut-community.svg",
-          "sizes": "192x192",
-          "type": "image/svg+xml"
-        }
-      ]
+      "name": "Trading Signals",
+      "short_name": "Signals",
+      "description": "Check latest trading signals",
+      "url": "/signals",
+      "icons": [{ "src": "/icons/signals-icon.png", "sizes": "192x192" }]
     },
     {
-      "name": "Marketplace",
-      "short_name": "Marketplace",
-      "description": "Browse trading strategies",
-      "url": "/marketplace",
-      "icons": [
-        {
-          "src": "/icons/shortcut-marketplace.svg",
-          "sizes": "192x192",
-          "type": "image/svg+xml"
-        }
-      ]
-    },
-    {
-      "name": "Learning",
-      "short_name": "Learning",
-      "description": "Access learning resources",
-      "url": "/learning",
-      "icons": [
-        {
-          "src": "/icons/shortcut-learning.svg",
-          "sizes": "192x192",
-          "type": "image/svg+xml"
-        }
-      ]
-    }
-  ],
-  "icons": [
-    {
-      "src": "/icons/icon-72x72.svg",
-      "sizes": "72x72",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-96x96.svg",
-      "sizes": "96x96",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-128x128.svg",
-      "sizes": "128x128",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-144x144.svg",
-      "sizes": "144x144",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-152x152.svg",
-      "sizes": "152x152",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-192x192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-384x384.svg",
-      "sizes": "384x384",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-512x512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
+      "name": "Market Analysis",
+      "short_name": "Analysis",
+      "description": "View market analysis",
+      "url": "/analysis",
+      "icons": [{ "src": "/icons/analysis-icon.png", "sizes": "192x192" }]
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshots/desktop-dashboard.png",
+      "src": "/screenshots/dashboard-screenshot.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Trading Dashboard"
     },
     {
-      "src": "/screenshots/mobile-dashboard.png",
-      "sizes": "428x926",
+      "src": "/screenshots/mobile-signals-screenshot.png",
+      "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Mobile Dashboard"
-    },
-    {
-      "src": "/screenshots/mobile-community.png",
-      "sizes": "428x926",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile Community"
+      "label": "Mobile Trading Signals"
     }
   ],
+  "categories": ["finance", "trading", "investment", "ai"],
+  "dir": "ltr",
+  "lang": "en-US",
+  "iarc_rating_id": "",
   "prefer_related_applications": false,
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "launch_handler": {
-    "client_mode": "navigate-new"
-  }
+  "scope": "/",
+  "related_applications": []
 }

@@ -1,107 +1,208 @@
-interface RateLimitConfig {
-  windowMs: number
-  maxRequests: number
-  keyGenerator?: (request: Request) => string
-  skipSuccessfulRequests?: boolean
-  skipFailedRequests?: boolean
-}
+/**
+ * 🔒 RATE LIMITING MIDDLEWARE
+ * Prevents brute force attacks by limiting request frequency
+ */
 
-interface RateLimitEntry {
-  count: number
-  resetTime: number
-  firstRequest: number
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { redis, getAndParse, setWithExpiry } from './database/redis-connection';
 
-export class RateLimiter {
-  private store = new Map<string, RateLimitEntry>()
-  private config: Required<RateLimitConfig>
+// Cache for rate limiting when Redis is unavailable
+const inMemoryCache = new Map<string, { count: number, resetTime: number }>();
 
-  constructor(config: RateLimitConfig) {
-    this.config = {
-      keyGenerator: (req) => this.getClientIP(req),
-      skipSuccessfulRequests: false,
-      skipFailedRequests: false,
-      ...config,
-    }
-
-    // Clean up expired entries every minute
-    setInterval(() => this.cleanup(), 60 * 1000)
+// Configuration for different routes
+export const RATE_LIMIT_CONFIGS = {
+  // Authentication routes have stricter limits
+  'auth': {
+    limit: 5, // 5 requests
+    window: 60, // per minute
+    blockDuration: 300 // block for 5 minutes after exceeding
+  },
+  // Admin authentication has even stricter limits
+  'adminAuth': {
+    limit: 3, // 3 requests
+    window: 60, // per minute
+    blockDuration: 600 // block for 10 minutes after exceeding
+  },
+  // API endpoints have more lenient limits
+  'api': {
+    limit: 60, // 60 requests
+    window: 60, // per minute
+    blockDuration: 300 // block for 5 minutes after exceeding
+  },
+  // Default limits for other routes
+  'default': {
+    limit: 100, // 100 requests
+    window: 60, // per minute
+    blockDuration: 300 // block for 5 minutes after exceeding
   }
+};
 
-  async checkLimit(request: Request): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
-    const key = this.config.keyGenerator(request)
-    const now = Date.now()
-    const windowStart = now - this.config.windowMs
+export type RateLimitType = keyof typeof RATE_LIMIT_CONFIGS;
 
-    let entry = this.store.get(key)
+/**
+ * Rate limiting middleware function
+ * @param req Next.js request
+ * @param key Unique identifier for rate limiting (usually IP + route)
+ * @param type Type of rate limit to apply
+ * @returns Response if rate limit exceeded, null otherwise
+ */
+export async function rateLimiter(
+  req: NextRequest,
+  key: string,
+  type: RateLimitType = 'default'
+): Promise<NextResponse | null> {
+  const config = RATE_LIMIT_CONFIGS[type];
+  const now = Date.now();
+  
+  try {
+    // Try Redis first
+    let currentLimit: { count: number, resetTime: number } | null = null;
+    
+    try {
+      currentLimit = await getAndParse<{ count: number, resetTime: number }>(`ratelimit:${key}`);
+    } catch (error) {
+      console.warn('Redis not available for rate limiting, using in-memory cache');
+      currentLimit = inMemoryCache.get(key) || null;
+    }
+    
+    // If no existing record or reset time has passed
+    if (!currentLimit || now >= currentLimit.resetTime) {
+      currentLimit = {
+        count: 1,
+        resetTime: now + (config.window * 1000)
+      };
+    } else {
+      // Increment count
+      currentLimit.count += 1;
+    }
+    
+    // Store updated value
+    try {
+      await setWithExpiry(`ratelimit:${key}`, currentLimit, config.window);
+    } catch (error) {
+      // Fallback to in-memory if Redis fails
+      inMemoryCache.set(key, currentLimit);
+    }
+    
+    // Set headers with rate limit info
+    const headers = new Headers();
+    headers.set('X-RateLimit-Limit', config.limit.toString());
+    headers.set('X-RateLimit-Remaining', Math.max(0, config.limit - currentLimit.count).toString());
+    headers.set('X-RateLimit-Reset', currentLimit.resetTime.toString());
+    
+    // Check if limit exceeded
+    if (currentLimit.count > config.limit) {
+      // Create block record
+      const blockUntil = now + (config.blockDuration * 1000);
+      try {
+        await setWithExpiry(`ratelimit:blocked:${key}`, { until: blockUntil }, config.blockDuration);
+      } catch (error) {
+        // Fallback to in-memory if Redis fails
+        inMemoryCache.set(`blocked:${key}`, { count: currentLimit.count, resetTime: blockUntil });
+      }
+      
+      // Return error response
+      headers.set('Retry-After', config.blockDuration.toString());
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${config.blockDuration} seconds.`
+        }),
+        {
+          status: 429,
+          headers
+        }
+      );
+    }
+    
+    // Not rate limited, just add headers to original request
+    Object.entries(headers).forEach(([key, value]) => {
+      req.headers.set(key, value);
+    });
+    
+    return null;
+  } catch (error) {
+    console.error('Rate limiting error:', error);
+    // Don't block requests if rate limiting fails
+    return null;
+  }
+}
 
-    if (!entry || entry.resetTime <= now) {
-      entry = {
-        count: 0,
-        resetTime: now + this.config.windowMs,
-        firstRequest: now,
+/**
+ * Check if a key is currently blocked
+ * @param key Key to check
+ * @returns Whether the key is blocked and for how much longer
+ */
+export async function isBlocked(key: string): Promise<{ blocked: boolean, remainingSeconds: number }> {
+  try {
+    // Try Redis first
+    let blockData: { until: number } | null = null;
+    try {
+      blockData = await getAndParse<{ until: number }>(`ratelimit:blocked:${key}`);
+    } catch (error) {
+      // Fallback to in-memory
+      const memoryData = inMemoryCache.get(`blocked:${key}`);
+      if (memoryData) {
+        blockData = { until: memoryData.resetTime };
       }
     }
-
-    // Clean old requests outside the window
-    if (entry.firstRequest < windowStart) {
-      entry.count = 0
-      entry.firstRequest = now
+    
+    if (!blockData) {
+      return { blocked: false, remainingSeconds: 0 };
     }
-
-    const allowed = entry.count < this.config.maxRequests
-
-    if (allowed) {
-      entry.count++
-      this.store.set(key, entry)
-    }
-
+    
+    const now = Date.now();
+    const remainingMs = Math.max(0, blockData.until - now);
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    
     return {
-      allowed,
-      remaining: Math.max(0, this.config.maxRequests - entry.count),
-      resetTime: entry.resetTime,
-    }
-  }
-
-  private getClientIP(request: Request): string {
-    // Try various headers for the real IP
-    const forwarded = request.headers.get("x-forwarded-for")
-    if (forwarded) {
-      return forwarded.split(",")[0].trim()
-    }
-
-    const realIP = request.headers.get("x-real-ip")
-    if (realIP) return realIP
-
-    const cfConnectingIP = request.headers.get("cf-connecting-ip")
-    if (cfConnectingIP) return cfConnectingIP
-
-    // Fallback to a default
-    return "unknown"
-  }
-
-  private cleanup(): void {
-    const now = Date.now()
-    for (const [key, entry] of this.store.entries()) {
-      if (entry.resetTime <= now) {
-        this.store.delete(key)
-      }
-    }
+      blocked: remainingMs > 0,
+      remainingSeconds
+    };
+  } catch (error) {
+    console.error('Block check error:', error);
+    return { blocked: false, remainingSeconds: 0 };
   }
 }
 
-// Pre-configured rate limiters
-export const authRateLimiter = new RateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 5, // 5 login attempts per 15 minutes
-})
+/**
+ * Apply rate limiting to a specific route type
+ * Creates a middleware function that can be used with Next.js middleware
+ */
+export function createRateLimiter(type: RateLimitType = 'default') {
+  return async function(req: NextRequest): Promise<NextResponse | null> {
+    // Get IP address
+    const ip = req.headers.get('x-forwarded-for') || 
+               req.headers.get('x-real-ip') || 
+               '127.0.0.1';
+               
+    // Create unique key for this route and IP
+    const key = `${type}:${ip}:${req.nextUrl.pathname}`;
+    
+    // Check if already blocked
+    const blockStatus = await isBlocked(key);
+    if (blockStatus.blocked) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${blockStatus.remainingSeconds} seconds.`
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': blockStatus.remainingSeconds.toString()
+          }
+        }
+      );
+    }
+    
+    // Apply rate limiting
+    return rateLimiter(req, key, type);
+  }
+}
 
-export const apiRateLimiter = new RateLimiter({
-  windowMs: 60 * 1000, // 1 minute
-  maxRequests: 100, // 100 requests per minute
-})
-
-export const strictRateLimiter = new RateLimiter({
-  windowMs: 60 * 1000, // 1 minute
-  maxRequests: 10, // 10 requests per minute for sensitive endpoints
-})
+// Export a default instance for auth routes
+export const authRateLimiter = createRateLimiter('auth');
+export const adminAuthRateLimiter = createRateLimiter('adminAuth');
+export const apiRateLimiter = createRateLimiter('api');

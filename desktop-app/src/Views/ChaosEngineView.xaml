@@ -1,0 +1,426 @@
+<UserControl x:Class="QuantumTrader.Views.ChaosEngineView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BackgroundPrimaryBrush}"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType">
+
+	<Grid>
+		<TabControl Background="Transparent" BorderThickness="0" Style="{StaticResource NexusTabControl}">
+			<!-- Chaos Engine Tab -->
+			<TabItem Header="Chaos Engine" Style="{StaticResource NexusTabItem}" AutomationProperties.Name="Chaos Engine Tab">
+				<DockPanel>
+					<!-- Chaos Sub-Navigation -->
+					<Border DockPanel.Dock="Top" Height="48" Background="{StaticResource BackgroundSecondaryBrush}"
+							BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,0,0,1">
+						<StackPanel Orientation="Horizontal" Margin="24,0" VerticalAlignment="Center">
+							<Button Content="Control Panel" Style="{StaticResource NexusPrimaryButton}" Margin="0,0,16,0" ToolTip="Chaos control panel" AutomationProperties.Name="Chaos Control Panel"/>
+							<Button Content="Scenarios" Style="{StaticResource NexusSecondaryButton}" Margin="0,0,16,0" ToolTip="View chaos scenarios" AutomationProperties.Name="Chaos Scenarios"/>
+							<Button Content="Scenario Builder" Style="{StaticResource NexusSecondaryButton}" ToolTip="Create a custom scenario" AutomationProperties.Name="Scenario Builder"/>
+						</StackPanel>
+					</Border>
+
+					<!-- Chaos Content -->
+					<ScrollViewer VerticalScrollBarVisibility="Auto">
+						<Grid Margin="24">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="*"/>
+							</Grid.RowDefinitions>
+
+							<!-- Global Chaos Control -->
+							<Border Grid.Column="0" Grid.Row="0" Style="{StaticResource NexusCard}" Margin="0,0,12,24">
+								<StackPanel>
+									<TextBlock Text="Global Chaos Control" Style="{StaticResource SectionHeaderText}" Margin="0,0,0,16"/>
+
+									<Grid Margin="0,0,0,8">
+										<TextBlock Text="Chaos Level" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Left"/>
+										<TextBlock Text="0%" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextPrimaryBrush}"
+												HorizontalAlignment="Right"/>
+									</Grid>
+
+									<!-- Using default Slider for now (no converter dependency) -->
+									<Slider x:Name="ChaosLevelSlider" Minimum="0" Maximum="200" Value="0" Margin="0,0,0,8" ToolTip="Adjust chaos level" AutomationProperties.Name="Chaos Level Slider"/>
+
+									<Grid Margin="0,0,0,24">
+										<TextBlock Text="Normal" FontSize="{StaticResource FontSizeTiny}" Foreground="{StaticResource TextTertiaryBrush}" HorizontalAlignment="Left"/>
+										<TextBlock Text="Extreme" FontSize="{StaticResource FontSizeTiny}" Foreground="{StaticResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+									</Grid>
+
+									<TextBlock Text="Chaos Presets" Foreground="{StaticResource TextSecondaryBrush}" FontSize="{StaticResource FontSizeSmall}" Margin="0,0,0,12"/>
+									<UniformGrid Rows="2" Columns="2">
+										<Button Content="Normal Market" Style="{StaticResource NexusSecondaryButton}" Margin="0,0,8,8"/>
+										<Button Content="2008 Crisis" Style="{StaticResource NexusSecondaryButton}" Margin="0,0,0,8"/>
+										<Button Content="Black Swan" Style="{StaticResource NexusSecondaryButton}" Margin="0,0,8,0"/>
+										<Button Content="Quantum Chaos" Style="{StaticResource NexusPrimaryButton}"/>
+									</UniformGrid>
+								</StackPanel>
+							</Border>
+
+							<!-- Stress Vector Controls -->
+							<Border Grid.Column="1" Grid.Row="0" Style="{StaticResource NexusCard}" Margin="12,0,0,24">
+								<StackPanel>
+									<TextBlock Text="Stress Vector Controls" Style="{StaticResource SectionHeaderText}" Margin="0,0,0,16"/>
+
+									<!-- Volatility Multiplier -->
+									<Grid Margin="0,0,0,8">
+										<TextBlock Text="Volatility Multiplier" Foreground="{StaticResource TextSecondaryBrush}" FontSize="{StaticResource FontSizeSmall}"/>
+										<TextBlock Text="1x" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextPrimaryBrush}"
+												FontSize="{StaticResource FontSizeSmall}" HorizontalAlignment="Right"/>
+									</Grid>
+									<ProgressBar Height="4" Value="1" Minimum="1" Maximum="100" Foreground="{StaticResource NegativeBrush}" Background="{StaticResource BorderSubtleBrush}" Margin="0,0,0,16"/>
+
+									<!-- Liquidity Depth -->
+									<Grid Margin="0,0,0,8">
+										<TextBlock Text="Liquidity Depth" Foreground="{StaticResource TextSecondaryBrush}" FontSize="{StaticResource FontSizeSmall}"/>
+										<TextBlock Text="100%" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextPrimaryBrush}"
+												FontSize="{StaticResource FontSizeSmall}" HorizontalAlignment="Right"/>
+									</Grid>
+									<ProgressBar Height="4" Value="100" Minimum="0" Maximum="100" Foreground="{StaticResource AccentCyanBrush}" Background="{StaticResource BorderSubtleBrush}" Margin="0,0,0,16"/>
+
+									<!-- Correlation Shift -->
+									<Grid Margin="0,0,0,8">
+										<TextBlock Text="Correlation Shift" Foreground="{StaticResource TextSecondaryBrush}" FontSize="{StaticResource FontSizeSmall}"/>
+										<TextBlock Text="0.00" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextPrimaryBrush}"
+												FontSize="{StaticResource FontSizeSmall}" HorizontalAlignment="Right"/>
+									</Grid>
+									<ProgressBar Height="4" Value="50" Minimum="0" Maximum="100" Foreground="{StaticResource WarningColor}" Background="{StaticResource BorderSubtleBrush}" Margin="0,0,0,16"/>
+
+									<!-- Time Warp Speed -->
+									<Grid Margin="0,0,0,8">
+										<TextBlock Text="Time Warp Speed" Foreground="{StaticResource TextSecondaryBrush}" FontSize="{StaticResource FontSizeSmall}"/>
+										<TextBlock Text="1x" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextPrimaryBrush}"
+												FontSize="{StaticResource FontSizeSmall}" HorizontalAlignment="Right"/>
+									</Grid>
+									<ProgressBar Height="4" Value="1" Minimum="1" Maximum="1000" Foreground="#9b59b6" Background="{StaticResource BorderSubtleBrush}"/>
+								</StackPanel>
+							</Border>
+
+							<!-- Historical Scenarios Grid -->
+							<Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Style="{StaticResource NexusCard}">
+								<StackPanel>
+									<Grid Margin="0,0,0,16">
+										<TextBlock Text="Historical Scenarios" Style="{StaticResource SectionHeaderText}"/>
+										<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+											<ComboBox Width="150" Style="{StaticResource NexusComboBox}" Margin="0,0,12,0">
+												<ComboBoxItem Content="All Categories"/>
+												<ComboBoxItem Content="Market Crashes"/>
+												<ComboBoxItem Content="Currency Crises"/>
+												<ComboBoxItem Content="Commodity Shocks"/>
+											</ComboBox>
+											<Button Content="Create Custom" Style="{StaticResource NexusPrimaryButton}" Padding="16,6"/>
+										</StackPanel>
+									</Grid>
+
+									<UniformGrid Rows="2" Columns="3">
+										<!-- Black Monday 1987 -->
+										<Border Style="{StaticResource NexusCard}" BorderBrush="{StaticResource AccentCyanBrush}" BorderThickness="2" Margin="0,0,8,8">
+											<StackPanel>
+												<Grid Margin="0,0,0,8">
+													<TextBlock Text="Black Monday 1987" FontSize="14" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
+													<Border Background="#ff444433" CornerRadius="4" Padding="8,2" HorizontalAlignment="Right">
+														<TextBlock Text="95%" FontSize="10" Foreground="#ff4444"/>
+													</Border>
+												</Grid>
+												<TextBlock Text="Oct 19, 1987" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+												<TextBlock Text="22.6% single-day drop in Dow Jones" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition/>
+														<ColumnDefinition/>
+														<ColumnDefinition/>
+													</Grid.ColumnDefinitions>
+													<StackPanel Grid.Column="0">
+														<TextBlock Text="Vol" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="500%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+													<StackPanel Grid.Column="1">
+														<TextBlock Text="Liq" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="20%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+													<StackPanel Grid.Column="2">
+														<TextBlock Text="Corr" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="0.9" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+												</Grid>
+											</StackPanel>
+										</Border>
+
+										<!-- 2008 Financial Crisis -->
+										<Border Style="{StaticResource NexusCard}" BorderThickness="2" Margin="0,0,8,8">
+											<StackPanel>
+												<Grid Margin="0,0,0,8">
+													<TextBlock Text="Lehman Brothers 2008" FontSize="14" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
+													<Border Background="#ff444433" CornerRadius="4" Padding="8,2" HorizontalAlignment="Right">
+														<TextBlock Text="98%" FontSize="10" Foreground="#ff4444"/>
+													</Border>
+												</Grid>
+												<TextBlock Text="Sep 15, 2008" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+												<TextBlock Text="Global financial system collapse" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition/>
+														<ColumnDefinition/>
+														<ColumnDefinition/>
+													</Grid.ColumnDefinitions>
+													<StackPanel Grid.Column="0">
+														<TextBlock Text="Vol" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="800%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+													<StackPanel Grid.Column="1">
+														<TextBlock Text="Liq" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="10%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+													<StackPanel Grid.Column="2">
+														<TextBlock Text="Corr" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="0.95" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+												</Grid>
+											</StackPanel>
+										</Border>
+
+										<!-- COVID-19 Crash -->
+										<Border Style="{StaticResource NexusCard}" BorderThickness="2" Margin="0,0,0,8">
+											<StackPanel>
+												<Grid Margin="0,0,0,8">
+													<TextBlock Text="COVID-19 Crash 2020" FontSize="14" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
+													<Border Background="#ff444433" CornerRadius="4" Padding="8,2" HorizontalAlignment="Right">
+														<TextBlock Text="90%" FontSize="10" Foreground="#ff4444"/>
+													</Border>
+												</Grid>
+												<TextBlock Text="Mar 2020" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+												<TextBlock Text="Fastest bear market in history" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition/>
+														<ColumnDefinition/>
+														<ColumnDefinition/>
+													</Grid.ColumnDefinitions>
+													<StackPanel Grid.Column="0">
+														<TextBlock Text="Vol" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="600%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+													<StackPanel Grid.Column="1">
+														<TextBlock Text="Liq" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="25%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+													<StackPanel Grid.Column="2">
+														<TextBlock Text="Corr" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+														<TextBlock Text="0.9" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													</StackPanel>
+												</Grid>
+											</StackPanel>
+										</Border>
+									</UniformGrid>
+								</StackPanel>
+							</Border>
+						</Grid>
+					</ScrollViewer>
+				</DockPanel>
+			</TabItem>
+
+			<!-- Risk Manager Tab -->
+			<TabItem Header="Risk Manager" Style="{StaticResource NexusTabItem}" AutomationProperties.Name="Risk Manager Tab">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="320"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="320"/>
+					</Grid.ColumnDefinitions>
+
+					<!-- Left Panel - Risk Overview -->
+					<Border Grid.Column="0" Background="{StaticResource BackgroundPrimaryBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
+						<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+							<StackPanel>
+								<TextBlock Text="📉 Risk Overview" Style="{StaticResource SectionHeaderText}" Margin="0,0,0,16"/>
+
+								<!-- Key Risk Metrics -->
+								<StackPanel Margin="0,0,0,24">
+									<!-- Portfolio VaR -->
+									<Border Style="{StaticResource NexusCard}" Margin="0,0,0,12">
+										<StackPanel>
+											<Grid Margin="0,0,0,4">
+												<TextBlock Text="PORTFOLIO VAR" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+												<TextBlock Text="-2.3%" FontSize="10" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Right"/>
+											</Grid>
+											<TextBlock Text="$125,000" FontFamily="{StaticResource FontMono}" FontSize="18" Foreground="{StaticResource TextPrimaryBrush}"/>
+											<TextBlock Text="95% confidence" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+										</StackPanel>
+									</Border>
+
+									<!-- Expected Shortfall -->
+									<Border Style="{StaticResource NexusCard}" Margin="0,0,0,12">
+										<StackPanel>
+											<Grid Margin="0,0,0,4">
+												<TextBlock Text="EXPECTED SHORTFALL" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+												<TextBlock Text="-1.8%" FontSize="10" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Right"/>
+											</Grid>
+											<TextBlock Text="$187,500" FontFamily="{StaticResource FontMono}" FontSize="18" Foreground="{StaticResource TextPrimaryBrush}"/>
+										</StackPanel>
+									</Border>
+
+									<!-- Sharpe Ratio -->
+									<Border Style="{StaticResource NexusCard}" Margin="0,0,0,12">
+										<StackPanel>
+											<Grid Margin="0,0,0,4">
+												<TextBlock Text="SHARPE RATIO" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+												<TextBlock Text="+0.15" FontSize="10" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Right"/>
+											</Grid>
+											<TextBlock Text="1.42" FontFamily="{StaticResource FontMono}" FontSize="18" Foreground="{StaticResource TextPrimaryBrush}"/>
+										</StackPanel>
+									</Border>
+								</StackPanel>
+
+								<!-- Risk Limits -->
+								<TextBlock Text="Risk Limits" FontSize="14" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+
+								<!-- Portfolio VaR Limit -->
+								<Border Style="{StaticResource NexusCard}" Margin="0,0,0,8">
+									<StackPanel>
+										<Grid Margin="0,0,0,8">
+											<TextBlock Text="Portfolio VaR" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+											<Border Background="#00ff8833" CornerRadius="4" Padding="6,2" HorizontalAlignment="Right">
+												<TextBlock Text="OK" FontSize="10" Foreground="{StaticResource PositiveBrush}"/>
+											</Border>
+										</Grid>
+										<Grid Margin="0,0,0,4">
+											<TextBlock Text="$125,000" FontSize="10" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextSecondaryBrush}"/>
+											<TextBlock Text="$200,000" FontSize="10" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
+										</Grid>
+										<ProgressBar Height="8" Value="62.5" Foreground="{StaticResource PositiveBrush}" Background="{StaticResource BorderSubtleBrush}"/>
+										<TextBlock Text="62.5% utilized" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+									</StackPanel>
+								</Border>
+
+								<!-- Single Position Limit -->
+								<Border Style="{StaticResource NexusCard}" Margin="0,0,0,8">
+									<StackPanel>
+										<Grid Margin="0,0,0,8">
+											<TextBlock Text="Single Position" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+											<Border Background="#ffa50033" CornerRadius="4" Padding="6,2" HorizontalAlignment="Right">
+												<TextBlock Text="WARNING" FontSize="10" Foreground="#ffa500"/>
+											</Border>
+										</Grid>
+										<Grid Margin="0,0,0,4">
+											<TextBlock Text="$45,000" FontSize="10" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextSecondaryBrush}"/>
+											<TextBlock Text="$50,000" FontSize="10" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
+										</Grid>
+										<ProgressBar Height="8" Value="90" Foreground="#ffa500" Background="{StaticResource BorderSubtleBrush}"/>
+										<TextBlock Text="90% utilized" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+									</StackPanel>
+								</Border>
+
+								<!-- Quick Actions -->
+								<StackPanel Margin="0,24,0,0">
+									<Button Content="Emergency Stop All" Style="{StaticResource NexusSecondaryButton}" BorderBrush="#ff4444" Foreground="#ff4444" Margin="0,0,0,8"/>
+									<Button Content="Reduce Risk Exposure" Style="{StaticResource NexusSecondaryButton}" BorderBrush="#ffa500" Foreground="#ffa500" Margin="0,0,0,8"/>
+									<Button Content="Generate Risk Report" Style="{StaticResource NexusSecondaryButton}" BorderBrush="{StaticResource AccentCyanBrush}" Foreground="{StaticResource AccentCyanBrush}"/>
+								</StackPanel>
+							</StackPanel>
+						</ScrollViewer>
+					</Border>
+
+					<!-- Center Panel - Risk Analysis -->
+					<ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24">
+						<StackPanel>
+							<Grid Margin="0,0,0,24">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition/>
+									<ColumnDefinition Width="12"/>
+									<ColumnDefinition/>
+								</Grid.ColumnDefinitions>
+
+								<!-- VaR Analysis -->
+								<Border Grid.Column="0" Style="{StaticResource NexusCard}">
+									<StackPanel>
+										<TextBlock Text="📉 Value at Risk Analysis" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+										<UniformGrid Rows="1" Columns="3">
+											<StackPanel HorizontalAlignment="Center">
+												<TextBlock Text="$125K" FontFamily="{StaticResource FontMono}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+												<TextBlock Text="1-Day VaR (95%)" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+											</StackPanel>
+											<StackPanel HorizontalAlignment="Center">
+												<TextBlock Text="$287K" FontFamily="{StaticResource FontMono}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+												<TextBlock Text="10-Day VaR (95%)" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+											</StackPanel>
+											<StackPanel HorizontalAlignment="Center">
+												<TextBlock Text="$188K" FontFamily="{StaticResource FontMono}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+												<TextBlock Text="Expected Shortfall" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+											</StackPanel>
+										</UniformGrid>
+									</StackPanel>
+								</Border>
+
+								<!-- Stress Testing Results -->
+								<Border Grid.Column="2" Style="{StaticResource NexusCard}">
+									<StackPanel>
+										<TextBlock Text="⚡ Stress Testing Results" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+										<Border Background="{StaticResource BackgroundSecondaryBrush}" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+											<Grid>
+												<StackPanel>
+													<TextBlock Text="2008 Financial Crisis" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+													<TextBlock Text="2.1% probability" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"/>
+												</StackPanel>
+												<StackPanel HorizontalAlignment="Right">
+													<TextBlock Text="-23.4%" FontFamily="{StaticResource FontMono}" FontSize="12" Foreground="#ff4444" HorizontalAlignment="Right"/>
+													<Border Background="#00ff8833" CornerRadius="4" Padding="4,1" HorizontalAlignment="Right">
+														<TextBlock Text="PASS" FontSize="9" Foreground="{StaticResource PositiveBrush}"/>
+													</Border>
+												</StackPanel>
+											</Grid>
+										</Border>
+									</StackPanel>
+								</Border>
+							</Grid>
+						</StackPanel>
+					</ScrollViewer>
+
+					<!-- Right Panel - Risk Alerts -->
+					<Border Grid.Column="2" Background="{StaticResource BackgroundPrimaryBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1,0,0,0">
+						<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+							<StackPanel>
+								<TextBlock Text="⚠️ Risk Alerts" Style="{StaticResource SectionHeaderText}" Margin="0,0,0,16"/>
+
+								<!-- Alert 1 - Warning -->
+								<Border Background="#ffa50022" CornerRadius="6" Padding="12" Margin="0,0,0,12">
+									<StackPanel>
+										<TextBlock Text="WARNING" FontSize="10" FontWeight="SemiBold" Foreground="#ffa500"/>
+										<TextBlock Text="TSLA position exceeds 90% of single position limit" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+										<TextBlock Text="2 min ago" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+									</StackPanel>
+								</Border>
+
+								<!-- Alert 2 - Info -->
+								<Border Background="#00bbff22" CornerRadius="6" Padding="12" Margin="0,0,0,12">
+									<StackPanel>
+										<TextBlock Text="INFO" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource AccentCyanBrush}"/>
+										<TextBlock Text="Tech sector concentration at 87.5%" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+										<TextBlock Text="5 min ago" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+									</StackPanel>
+								</Border>
+
+								<!-- Alert 3 - Critical -->
+								<Border Background="#ff444422" CornerRadius="6" Padding="12" Margin="0,0,0,12">
+									<StackPanel>
+										<TextBlock Text="CRITICAL" FontSize="10" FontWeight="SemiBold" Foreground="#ff4444"/>
+										<TextBlock Text="Portfolio correlation increased to 0.85" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+										<TextBlock Text="12 min ago" FontSize="10" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+									</StackPanel>
+								</Border>
+							</StackPanel>
+						</ScrollViewer>
+					</Border>
+				</Grid>
+			</TabItem>
+		</TabControl>
+	</Grid>
+</UserControl>
+
+
