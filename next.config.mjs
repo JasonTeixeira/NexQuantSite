@@ -118,7 +118,6 @@ const nextConfig = {
   
   // 🔄 LOAD BALANCING & SCALING PREP
   async rewrites() {
-    const RESEARCH_API = process.env.NEXURAL_RESEARCH_URL || 'http://localhost:8000'
     return [
       // Health check endpoint for load balancers
       {
@@ -129,15 +128,6 @@ const nextConfig = {
       {
         source: '/api/v1/:path*',
         destination: '/api/:path*',
-      },
-      // 🔬 Nexural Research API proxy
-      {
-        source: '/research/api/:path*',
-        destination: `${RESEARCH_API}/api/:path*`,
-      },
-      {
-        source: '/research/metrics',
-        destination: `${RESEARCH_API}/metrics`,
       },
     ]
   },
