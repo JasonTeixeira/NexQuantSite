@@ -211,14 +211,14 @@ export default function SystemStatusClient() {
   }
 
   const getStatusBadge = (status: string) => {
-    const colors: Record<string, string> = {
+    const colors = {
       operational: 'bg-green-500',
       degraded: 'bg-yellow-500',
       partial_outage: 'bg-orange-500',
       major_outage: 'bg-red-500',
       maintenance: 'bg-blue-500'
     }
-    return colors[status] || 'bg-gray-500'
+    return colors[status as keyof typeof colors] || 'bg-gray-500'
   }
 
   const getStatusIcon = (status: string) => {
@@ -256,32 +256,6 @@ export default function SystemStatusClient() {
   const refreshStatus = () => {
     setLastUpdated(new Date())
   }
-
-  // Generate a stable array for uptime visualization
-  const generateUptimeData = (uptime: number) => {
-    const failures = Math.floor(90 * (1 - uptime / 100))
-    const data = Array(90).fill(true)
-    
-    // Randomly distribute failures
-    let count = 0
-    while (count < failures) {
-      const index = Math.floor(Math.random() * 90)
-      if (data[index]) {
-        data[index] = false
-        count++
-      }
-    }
-    
-    return data
-  }
-
-  // Pre-generate uptime data for stability
-  const uptimeData = React.useMemo(() => {
-    return mockServices.reduce((acc, service) => {
-      acc[service.id] = generateUptimeData(service.metrics.uptime90d)
-      return acc
-    }, {} as Record<string, boolean[]>)
-  }, [])
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -351,7 +325,7 @@ export default function SystemStatusClient() {
                 <div key={service.id} className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-full ${getStatusBadge(service.status)}`}>
-                      {React.createElement(service.icon, { className: "w-4 h-4 text-white" })}
+                      <service.icon className="w-4 h-4 text-white" />
                     </div>
                     <div>
                       <h3 className="font-medium">{service.name}</h3>
@@ -429,15 +403,17 @@ export default function SystemStatusClient() {
                 {mockServices.map((service) => (
                   <div key={service.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {React.createElement(service.icon, { className: "w-4 h-4 text-gray-400" })}
+                      <service.icon className="w-4 h-4 text-gray-400" />
                       <span className="text-sm">{service.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1">
-                        {uptimeData[service.id]?.map((isUp, i) => (
+                        {Array.from({ length: 90 }, (_, i) => (
                           <div
                             key={i}
-                            className={`w-1 h-6 rounded-sm ${isUp ? 'bg-green-500' : 'bg-red-500'}`}
+                            className={`w-1 h-6 rounded-sm ${
+                              Math.random() > 0.05 ? 'bg-green-500' : 'bg-red-500'
+                            }`}
                           />
                         ))}
                       </div>

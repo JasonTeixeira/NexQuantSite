@@ -35,24 +35,20 @@ export interface RegisterData {
 // JWT TOKEN MANAGEMENT
 // ============================================================================
 
-const JWT_SECRET = process.env.JWT_SECRET || 'development_secret_do_not_use_in_production'
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'development' ? 'dev-secret-key-change-in-production' : undefined)
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h'
 
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required for secure authentication')
+}
+
 export const generateJWT = (payload: any): string => {
-  // Properly cast the JWT_SECRET as Buffer for TypeScript compatibility
-  const secretBuffer = Buffer.from(JWT_SECRET, 'utf-8')
-  
-  // Use proper options object
-  const options = { expiresIn: JWT_EXPIRES_IN }
-  
-  return jwt.sign(payload, secretBuffer, options)
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
 }
 
 export const verifyJWT = (token: string): any => {
   try {
-    // Properly cast the JWT_SECRET as Buffer for TypeScript compatibility
-    const secretBuffer = Buffer.from(JWT_SECRET, 'utf-8')
-    return jwt.verify(token, secretBuffer)
+    return jwt.verify(token, JWT_SECRET)
   } catch (error) {
     return null
   }
@@ -479,7 +475,7 @@ export interface TwoFactorSetupResult {
 export const setupTwoFactor = async (userId: string): Promise<TwoFactorSetupResult> => {
   try {
     // Generate secret
-    const secret = randomBytes(16).toString('hex')
+    const secret = randomBytes(16).toString('base32')
     
     // Generate backup codes
     const backupCodes = Array.from({ length: 8 }, () => 
@@ -610,35 +606,25 @@ export const sendVerificationEmail = async (email: string, token: string): Promi
 /**
  * Clean expired tokens (should be run periodically)
  */
-export const cleanExpiredTokens = async (): Promise<void> => {
-  try {
-    // Use Redis to clean up expired tokens
-    const emailVerificationPattern = 'email_verification:*'
-    const passwordResetPattern = 'password_reset:*'
-    
-    // Get all verification tokens
-    const emailKeys = await redis.keys(emailVerificationPattern)
-    for (const key of emailKeys) {
-      const tokenData = await getAndParse<EmailVerificationToken>(key)
-      if (tokenData && new Date(tokenData.expiresAt) < new Date()) {
-        await deleteKey(key)
-      }
+export const cleanExpiredTokens = (): void => {
+  const now = new Date()
+  
+  // Clean email verification tokens
+  for (const [token, data] of emailVerificationTokens.entries()) {
+    if (data.expiresAt < now) {
+      emailVerificationTokens.delete(token)
     }
-    
-    // Get all password reset tokens
-    const passwordKeys = await redis.keys(passwordResetPattern)
-    for (const key of passwordKeys) {
-      const tokenData = await getAndParse<PasswordResetToken>(key)
-      if (tokenData && new Date(tokenData.expiresAt) < new Date()) {
-        await deleteKey(key)
-      }
-    }
-    
-    // Clean expired sessions
-    await SessionDAO.cleanExpiredSessions()
-  } catch (error) {
-    console.error('Error cleaning expired tokens:', error)
   }
+  
+  // Clean password reset tokens
+  for (const [token, data] of passwordResetTokens.entries()) {
+    if (data.expiresAt < now) {
+      passwordResetTokens.delete(token)
+    }
+  }
+  
+  // Clean expired sessions
+  SessionDAO.cleanExpiredSessions()
 }
 
 // ============================================================================

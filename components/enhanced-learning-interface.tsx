@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Play,
   Pause,
   Lock,
+  Unlock,
   CheckCircle,
   Clock,
   Star,
@@ -25,19 +26,68 @@ import {
   Target,
   Users,
   BookOpen,
+  Video,
   FileQuestion,
-  Activity,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  SkipBack,
+  SkipForward,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ArrowRight,
+  ArrowLeft,
+  Plus,
+  X,
   Share2,
   Download,
   Bookmark,
-  FileText,
+  MessageSquare,
+  ThumbsUp,
+  Heart,
+  Eye,
+  Calendar,
+  BarChart3,
+  PieChart,
+  TrendingUp,
+  Route,
+  Map,
+  Navigation,
+  Compass,
+  Flag,
+  Sparkles,
+  Shield,
+  Zap,
+  Lightbulb,
+  Settings,
+  Menu,
   Search,
+  Filter,
+  Grid3X3,
+  List,
   Bell,
-  Route
+  Mail,
+  Phone,
+  Globe,
+  Cpu,
+  Database,
+  Activity,
+  RefreshCw,
+  Send,
+  Bot,
+  Mic,
+  Camera,
+  Image,
+  FileText,
+  Layers,
+  Network,
+  GitBranch
 } from "lucide-react"
 import { toast } from "sonner"
+import { useLearningStore } from "@/lib/stores/learning-store"
+import DiscussionForums from "@/components/learning/discussion-forums"
 
 // Enhanced interfaces for the new system
 interface EnhancedCourse {
@@ -300,7 +350,10 @@ export default function EnhancedLearningInterface() {
   const [selectedCourse, setSelectedCourse] = useState<EnhancedCourse | null>(null)
   const [currentLesson, setCurrentLesson] = useState<VideoLesson | null>(null)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-  const [studentDashboard] = useState<StudentDashboard>(MOCK_STUDENT_DASHBOARD)
+  const [videoProgress, setVideoProgress] = useState(0)
+  const [showTranscript, setShowTranscript] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
+  const [studentDashboard, setStudentDashboard] = useState<StudentDashboard>(MOCK_STUDENT_DASHBOARD)
   const [courses, setCourses] = useState<EnhancedCourse[]>(MOCK_COURSES)
   
   // Search and filter states
@@ -308,6 +361,9 @@ export default function EnhancedLearningInterface() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [progressFilter, setProgressFilter] = useState('all')
+
+  // Video player refs
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // ===== COMPUTED VALUES =====
   const filteredCourses = useMemo(() => {
@@ -380,6 +436,20 @@ export default function EnhancedLearningInterface() {
     }
   }
 
+  const handleVideoPlay = () => {
+    setIsVideoPlaying(true)
+    if (videoRef.current) {
+      videoRef.current.play()
+    }
+  }
+
+  const handleVideoPause = () => {
+    setIsVideoPlaying(false)
+    if (videoRef.current) {
+      videoRef.current.pause()
+    }
+  }
+
   const handleLessonComplete = () => {
     if (!selectedCourse || !currentLesson) return
 
@@ -394,6 +464,22 @@ export default function EnhancedLearningInterface() {
         : course
     )
     setCourses(updatedCourses)
+
+    // Add XP and update dashboard
+    setStudentDashboard(prev => ({
+      ...prev,
+      totalXP: prev.totalXP + 25,
+      recentActivity: [
+        {
+          id: Date.now().toString(),
+          type: 'lesson_completed',
+          title: `Completed "${currentLesson.title}"`,
+          timestamp: new Date().toISOString(),
+          xp: 25
+        },
+        ...prev.recentActivity.slice(0, 9) // Keep last 10 activities
+      ]
+    }))
 
     toast.success(`Lesson completed! +25 XP earned`)
   }
@@ -425,9 +511,9 @@ export default function EnhancedLearningInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 pt-24">
+    <div className="min-h-screen bg-gray-950">
       {/* ===== HEADER ===== */}
-      <header className="bg-gray-900 border-b border-gray-800 sticky top-16 z-40">
+      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo & Navigation */}
@@ -463,6 +549,14 @@ export default function EnhancedLearningInterface() {
                   }`}
                 >
                   Learning Paths
+                </button>
+                <button
+                  onClick={() => setActiveView('discussions')}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    activeView === 'discussions' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                  }`}
+                >
+                  Discussions
                 </button>
                 <button
                   onClick={() => setActiveView('achievements')}
@@ -673,6 +767,43 @@ export default function EnhancedLearningInterface() {
                       </Card>
                     ))}
                   </div>
+
+                  {/* Learning Paths Progress */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-white">Learning Paths</h3>
+                    {studentDashboard.learningPaths.map(path => (
+                      <Card key={path.id} className="bg-gray-900 border-gray-800">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2">
+                                <Route className="w-5 h-5 text-blue-400" />
+                                <h4 className="text-white font-semibold">{path.name}</h4>
+                              </div>
+                              
+                              <div className="mt-2">
+                                <div className="flex justify-between text-sm mb-1">
+                                  <span className="text-gray-400">
+                                    {path.coursesCompleted} of {path.totalCourses} courses
+                                  </span>
+                                  <span className="text-white">{path.progress}%</span>
+                                </div>
+                                <Progress value={path.progress} className="h-2" />
+                              </div>
+
+                              <p className="text-gray-400 text-sm mt-1">
+                                Estimated completion: {path.estimatedCompletion}
+                              </p>
+                            </div>
+
+                            <Button size="sm" variant="outline">
+                              View Path
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Sidebar */}
@@ -748,6 +879,42 @@ export default function EnhancedLearningInterface() {
                             </div>
                           </div>
                         ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* AI Recommendations */}
+                  <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-700/50">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center">
+                        <Brain className="w-5 h-5 mr-2 text-purple-400" />
+                        AI Recommendations
+                        <Badge className="ml-2 bg-purple-600 text-xs animate-pulse">Smart</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="p-3 bg-purple-900/20 rounded-lg border border-purple-700/30">
+                          <p className="text-white font-medium text-sm">Options Trading Course</p>
+                          <p className="text-gray-300 text-xs">Based on your progress in Technical Analysis</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <Badge className="bg-purple-600 text-xs">98% match</Badge>
+                            <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                              Enroll
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-blue-900/20 rounded-lg border border-blue-700/30">
+                          <p className="text-white font-medium text-sm">Practice Quiz Suggested</p>
+                          <p className="text-gray-300 text-xs">Reinforce your Technical Analysis skills</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <Badge className="bg-blue-600 text-xs">Recommended</Badge>
+                            <Button size="sm" variant="outline">
+                              Take Quiz
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -911,6 +1078,30 @@ export default function EnhancedLearningInterface() {
                             </div>
                           </div>
 
+                          {/* Learning Path Info */}
+                          {course.learningPath && (
+                            <div className="flex items-center space-x-2 p-2 bg-gray-800 rounded-lg">
+                              <Route className="w-4 h-4 text-blue-400" />
+                              <div className="flex-1">
+                                <p className="text-white text-sm font-medium">{course.learningPath.name}</p>
+                                <p className="text-gray-400 text-xs">
+                                  Course {course.learningPath.position} of {course.learningPath.totalCourses}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Badges */}
+                          {course.badges.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {course.badges.map(badge => (
+                                <Badge key={badge.id} className={`text-xs ${getRarityColor(badge.rarity)}`}>
+                                  {badge.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
                           {/* Action */}
                           <Button 
                             onClick={() => handleCourseSelect(course)}
@@ -935,6 +1126,21 @@ export default function EnhancedLearningInterface() {
               </div>
             </motion.div>
           )}
+
+          {/* ===== DISCUSSIONS VIEW ===== */}
+          {activeView === 'discussions' && (
+            <motion.div
+              key="discussions"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <DiscussionForums />
+            </motion.div>
+          )}
+
+          {/* Other views can be implemented similarly... */}
         </AnimatePresence>
       </main>
 
@@ -979,6 +1185,14 @@ export default function EnhancedLearningInterface() {
                     </div>
                   </div>
 
+                  <div className="flex items-center space-x-4 text-sm text-gray-400">
+                    <span>{formatDuration(currentLesson.duration)}</span>
+                    <span>•</span>
+                    <span>{selectedCourse.instructor.name}</span>
+                    <span>•</span>
+                    <span>{selectedCourse.category}</span>
+                  </div>
+
                   {/* Lesson Completion */}
                   {!currentLesson.isCompleted && (
                     <Button 
@@ -989,6 +1203,62 @@ export default function EnhancedLearningInterface() {
                       Mark as Complete
                     </Button>
                   )}
+
+                  {/* Tabs for additional content */}
+                  <Tabs defaultValue="overview" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4 bg-gray-800">
+                      <TabsTrigger value="overview">Overview</TabsTrigger>
+                      <TabsTrigger value="transcript">Transcript</TabsTrigger>
+                      <TabsTrigger value="resources">Resources</TabsTrigger>
+                      <TabsTrigger value="notes">Notes</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="overview" className="space-y-4">
+                      <div className="text-gray-300">
+                        <p>{selectedCourse.description}</p>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="transcript">
+                      <div className="bg-gray-800 p-4 rounded-lg max-h-64 overflow-y-auto">
+                        <p className="text-gray-300">
+                          {currentLesson.transcript || "Transcript not available for this lesson."}
+                        </p>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="resources">
+                      <div className="space-y-2">
+                        {currentLesson.resources.map((resource, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <FileText className="w-5 h-5 text-blue-400" />
+                              <span className="text-white">{resource.title}</span>
+                            </div>
+                            <Button size="sm">
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="notes">
+                      <div className="space-y-4">
+                        <Input 
+                          placeholder="Add a note..."
+                          className="bg-gray-800 border-gray-700 text-white"
+                        />
+                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                          {currentLesson.notes.map((note, index) => (
+                            <div key={index} className="p-3 bg-gray-800 rounded-lg">
+                              <p className="text-gray-300">{note}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
 
@@ -1002,6 +1272,43 @@ export default function EnhancedLearningInterface() {
                     <span className="text-white">{selectedCourse.progress}%</span>
                   </div>
                   <Progress value={selectedCourse.progress} className="h-2" />
+                </div>
+
+                <div className="text-sm text-gray-400">
+                  {selectedCourse.completedLessons} of {selectedCourse.totalLessons} lessons complete
+                </div>
+
+                {/* Lesson List */}
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {/* This would be populated with actual lesson data */}
+                  {Array.from({ length: selectedCourse.totalLessons }, (_, index) => (
+                    <div 
+                      key={index}
+                      className={`flex items-center space-x-3 p-2 rounded cursor-pointer transition-colors ${
+                        index < selectedCourse.completedLessons 
+                          ? 'bg-green-900/30 hover:bg-green-900/50' 
+                          : index === selectedCourse.completedLessons
+                          ? 'bg-blue-900/30 hover:bg-blue-900/50'
+                          : 'bg-gray-700/30 hover:bg-gray-700/50'
+                      }`}
+                    >
+                      <div className="flex-shrink-0">
+                        {index < selectedCourse.completedLessons ? (
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                        ) : index === selectedCourse.completedLessons ? (
+                          <Play className="w-4 h-4 text-blue-400" />
+                        ) : (
+                          <Lock className="w-4 h-4 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm truncate">
+                          Lesson {index + 1}: Sample Lesson Title
+                        </p>
+                        <p className="text-gray-400 text-xs">5:30</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

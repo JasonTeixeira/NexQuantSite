@@ -1,93 +1,90 @@
-/**
- * 🔌 Integrations Section
- * Showcases the various integrations and platforms supported by Nexural Trading
- */
+"use client"
 
-import React from "react";
+import { motion } from "framer-motion"
+import { Code, MessageSquare, TrendingUp, Zap } from "lucide-react"
 
-const IntegrationsSection = () => {
-  // Array of integrations by category
+export default function IntegrationsSection() {
   const integrations = [
     {
-      category: "Brokers",
-      items: [
-        { name: "Interactive Brokers", logo: "🏦" },
-        { name: "TD Ameritrade", logo: "🏦" },
-        { name: "Alpaca", logo: "🏦" },
-        { name: "Tradovate", logo: "🏦" },
-        { name: "NinjaTrader", logo: "🏦" }
-      ]
+      name: "NinjaTrader 8",
+      icon: TrendingUp,
+      description: "Professional trading platform integration",
     },
     {
-      category: "Data Providers",
-      items: [
-        { name: "Polygon.io", logo: "📊" },
-        { name: "Alpaca Market Data", logo: "📊" },
-        { name: "IEX Cloud", logo: "📊" },
-        { name: "Finnhub", logo: "📊" },
-        { name: "Databento", logo: "📊" }
-      ]
+      name: "QuantTower",
+      icon: Code,
+      description: "Advanced analytics and execution",
     },
     {
-      category: "Platforms",
-      items: [
-        { name: "TradingView", logo: "📈" },
-        { name: "MetaTrader", logo: "📈" },
-        { name: "cTrader", logo: "📈" },
-        { name: "Sierra Chart", logo: "📈" },
-        { name: "DxFeed", logo: "📈" }
-      ]
-    }
-  ];
+      name: "TradingView",
+      icon: TrendingUp,
+      description: "Charting and technical analysis",
+    },
+    {
+      name: "Discord",
+      icon: MessageSquare,
+      description: "Real-time community and alerts",
+    },
+    {
+      name: "API Access",
+      icon: Zap,
+      description: "Custom integrations and automation",
+    },
+  ]
 
   return (
-    <section className="py-16 bg-gradient-to-b from-black to-gray-900">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Seamless Integrations
+    <section className="py-20 bg-black">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Platform <span className="text-[#00FF41]">Integrations</span>
           </h2>
-          <p className="text-lg text-gray-300">
-            Connect your favorite platforms, brokers, and data providers with our open architecture.
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Seamlessly connect with your favorite trading platforms and tools
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {integrations.map((group, index) => (
-            <div 
-              key={index} 
-              className="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-6 hover:border-purple-500/50 transition-all"
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {integrations.map((integration, index) => (
+            <motion.div
+              key={integration.name}
+              className="bg-black/50 border border-gray-700 rounded-lg p-6 text-center hover:border-[#00FF41] transition-all duration-300 group backdrop-blur-md"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
             >
-              <h3 className="text-xl font-semibold mb-6 text-purple-400 text-center">
-                {group.category}
+              <motion.div className="mb-4" whileHover={{ rotate: 5 }}>
+                <div className="w-16 h-16 bg-[#00FF41]/20 rounded-lg flex items-center justify-center mx-auto group-hover:bg-[#00FF41]/30 transition-colors">
+                  <integration.icon className="w-8 h-8 text-[#00FF41]" />
+                </div>
+              </motion.div>
+
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00FF41] transition-colors">
+                {integration.name}
               </h3>
-              
-              <div className="grid grid-cols-2 gap-4">
-                {group.items.map((item, idx) => (
-                  <div 
-                    key={idx} 
-                    className="flex flex-col items-center justify-center p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    <span className="text-2xl mb-2">{item.logo}</span>
-                    <span className="text-sm text-gray-200 text-center">{item.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+
+              <p className="text-sm text-gray-400">{integration.description}</p>
+            </motion.div>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-gray-400 mb-4">
-            Don't see your preferred integration? Let us know and we'll add it to our roadmap.
-          </p>
-          <button className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors">
-            Request Integration
-          </button>
-        </div>
+        <motion.div
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+        >
+          <p className="text-gray-400">More integrations coming soon. Request your favorite platform in our Discord.</p>
+        </motion.div>
       </div>
     </section>
-  );
-};
-
-export default IntegrationsSection;
+  )
+}
